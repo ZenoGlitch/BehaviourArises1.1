@@ -1,0 +1,22 @@
+# directories
+[Bb]uild/
+_[Bb]uild/
+.vs/
+
+# extensions
+*.exe
+*.lib
+*.dll
+*.idb
+*.so
+*.sdf
+*.opensdf
+*.user
+*.filters
+*.zip
+
+# exceptions
+!/External/**/*
+!/external/**/*
+!/Vendor/**/*
+!/vendor/**/*
