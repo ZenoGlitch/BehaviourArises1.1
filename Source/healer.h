@@ -26,4 +26,12 @@ private:
 	float energy = maxEnergy;
 
 
+	// Behaviour tree stuff
+	BehaviourTree bT;
+	BehaviourTree::Selector selector[2];
+
+	Action checkHealth = Action("checkHealth", 100);
+
+	void createBehaviourTree();
+
 };

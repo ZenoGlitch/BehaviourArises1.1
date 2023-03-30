@@ -73,6 +73,7 @@ Action::Action(std::string newName, int prob)
 
 bool Action::run(Level *level)
 {
+	// GENERIC BT ACTIONS
 	if (name == "testing1")
 	{
 		printf("test 1 succeeded\n");
@@ -88,5 +89,13 @@ bool Action::run(Level *level)
 
 		//move towards player
 	}
+
+
+	// TANK BT ACTIONS
+
+	// HEALER BT ACTIONS
+
+	// MONSTER BT ACTIONS
+
 	return false;
 }

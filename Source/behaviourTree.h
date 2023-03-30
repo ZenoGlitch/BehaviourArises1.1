@@ -45,7 +45,7 @@ public:
 	struct Root : public Node
 	{
 	public:
-		Node* child;
+		Node* child = nullptr;
 		//friend class BehaviourTree;
 		void setChild(Selector* newChild);
 		virtual bool run(Level* level) override;
