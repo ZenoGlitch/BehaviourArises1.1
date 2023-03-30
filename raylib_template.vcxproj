@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClCompile Include="Source\agent.cpp" />
     <ClCompile Include="Source\behaviourTree.cpp" />
+    <ClCompile Include="Source\healer.cpp" />
     <ClCompile Include="Source\level.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\monster.cpp" />
@@ -172,6 +173,7 @@
   <ItemGroup>
     <ClInclude Include="Source\agent.h" />
     <ClInclude Include="Source\behaviourTree.h" />
+    <ClInclude Include="Source\healer.h" />
     <ClInclude Include="Source\level.h" />
     <ClInclude Include="Source\monster.h" />
     <ClInclude Include="Source\tank.h" />

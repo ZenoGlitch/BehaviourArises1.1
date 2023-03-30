@@ -1,14 +1,17 @@
 #include "testAgent.h"
 
+#include "level.h"
+
 #include <iostream>
 #include <rlgl.h>
 
-void TestAgent::initialize()
+void TestAgent::initialize(Level *level)
 {
-	Vector2 pos = { GetScreenWidth() / 2, GetScreenHeight() / 2};
+	Vector2 pos = { (float)(GetScreenWidth() / 2), (float)(GetScreenHeight() / 2)};
 	setPosition(pos);
 	playerTex = LoadTexture("Assets/player.png");
 	swordTex = LoadTexture("Assets/sword.png");
+	level->pending_agents.push_back(this);
 }
 
 void TestAgent::sense(Level* level)
@@ -44,18 +47,20 @@ void TestAgent::draw(Level* level)
 	angle = -atan2f(diff.x, diff.y) * RAD2DEG;
 
 	// Draw sword
-	Rectangle swordRectSrc = { 0,0, swordTex.width, swordTex.height };
-	Rectangle SwordRectDst = { lineEndPos.x, lineEndPos.y, swordTex.width, swordTex.height };
-	Vector2 swordOrigin = { swordTex.width / 2, swordTex.height };
+	Rectangle swordRectSrc = { 0,0, (float)swordTex.width, (float)swordTex.height };
+	Rectangle SwordRectDst = { lineEndPos.x, lineEndPos.y, (float)swordTex.width, (float)swordTex.height };
+	Vector2 swordOrigin = { (float)(swordTex.width / 2), (float)swordTex.height };
 	DrawTexturePro(swordTex, swordRectSrc, SwordRectDst, swordOrigin, angle, WHITE);
 	swordTipPos = { lineEndPos.x + scaled.x * 2, lineEndPos.y + scaled.y * 2 };
 	//DrawCircle(swordTipPos.x, swordTipPos.y, 10, BLUE);
 
 	// Draw player
 	float scale = 1.5f;
-	Rectangle playerRectSrc = { 0, 0, playerTex.width, playerTex.height };
-	Rectangle playerRectDst = { pos.x, pos.y, playerTex.width * scale, playerTex.height * scale};
-	Vector2 playerOrigin = { (playerTex.width / 2) * scale, (playerTex.height / 2) * scale };
+	Rectangle playerRectSrc = { 0, 0, (float)playerTex.width, (float)playerTex.height };
+	Rectangle playerRectDst = { pos.x, pos.y, (float)playerTex.width * scale, (float)playerTex.height * scale};
+	float pOriginX = (float)((playerTex.width / 2) * scale);
+	float pOriginY = (float)((playerTex.height / 2) * scale);
+	Vector2 playerOrigin = { pOriginX, pOriginY };
 	DrawTexturePro(playerTex, playerRectSrc, playerRectDst, playerOrigin, angle, WHITE );
 
 }

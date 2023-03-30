@@ -2,11 +2,12 @@
 
 #include "level.h"
 
-void Monster::initialize()
+void Monster::initialize(Level *level)
 {
 	setPosition(randSpawnPoint());
 	monsterTex = LoadTexture("Assets/monster1.png");
 	createBehaviourTree();
+	level->pending_agents.push_back(this);
 }
 
 void Monster::sense(Level *level)
@@ -58,6 +59,11 @@ void Monster::act(Level *level)
 	{
 		targetPos = level->tA.getPosition();
 	}
+
+	if (target == Tank)
+	{
+		targetPos = level->tank.getPosition();
+	}
 	//if (target == Tank)
 	//{
 	//	targetPos = level->tank.getPosition();
@@ -87,8 +93,10 @@ void Monster::draw(Level *level)
 
 	float angle = 0;
 	//Calulate angle
+
 	Vector2 diff = Vector2Subtract(pos, targetPos);
 	angle = -atan2f(diff.x, diff.y) * RAD2DEG;
+
 
 	float scale = 2;
 	Rectangle rectSrc = { 0, 0, (float)monsterTex.width, (float)monsterTex.height };

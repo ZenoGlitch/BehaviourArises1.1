@@ -3,9 +3,9 @@
 void Level::initialize()
 {
 	background = LoadTexture("Assets/background.png");
-	tA.initialize();
-	monster.initialize();
-	tank.initialize();
+	tA.initialize(this);
+	monster.initialize(this);
+	tank.initialize(this);
 }
 
 void Level::input()
@@ -94,6 +94,17 @@ void Level::remove_dead_and_add_pending_agents()
 //	return result;
 //}
 
+Monster* Level::spawnMonster(Monster &monster)
+{
+	Monster* result = nullptr;
+	monsterAgents.push_back(&monster);
+	result = monsterAgents.back();
+
+	pending_agents.push_back(result);
+
+	return result;
+}
+
 void Level::reset()
 {
 	// TODO: Implement this yourself, clear all lists and vectors, after that spawn agents
@@ -109,12 +120,29 @@ void Level::update()
 {
 	remove_dead_and_add_pending_agents();
 
+	for (auto& monsters : monsterAgents)
+	{
+		monsters->sense(this);
+
+	}
+
+	for (auto& monsters : monsterAgents)
+	{
+		monsters->decide();
+	}
+
 	monster.sense(this);
 
 	monster.decide();
 
 	tA.act(this);
 	monster.act(this);
+
+	for (auto& monsters : monsterAgents)
+	{
+		monsters->act(this);
+	}
+
 	//std::cout << monster.getPosition().x << std::endl;
 
 	//for(auto& agent : all_agents)
@@ -130,12 +158,12 @@ void Level::draw()
 {
 
 	DrawTexture(background,0 ,0, WHITE);
-	tank.draw(this);
-	tA.draw(this);
-	monster.draw(this);
+	//tank.draw(this);
+	//tA.draw(this);
+	//monster.draw(this);
 
-	//for(auto& agent : all_agents)
-	//{
-	//	agent->draw(this);
-	//}
+	for(auto& agent : all_agents)
+	{
+		agent->draw(this);
+	}
 }

@@ -1,10 +1,13 @@
 #include "tank.h"
 
-void Tank::initialize()
+#include "level.h"
+
+void Tank::initialize(Level *level)
 {
 	tankTex = LoadTexture("Assets/tank.png");
-	Vector2 spawnPos = { GetScreenWidth() / 2, GetScreenHeight() / 2};
+	Vector2 spawnPos = { (float)(GetScreenWidth() / 2), (float)(GetScreenHeight() / 2)};
 	setPosition(spawnPos);
+	level->pending_agents.push_back(this);
 }
 
 void Tank::sense(Level* level)
@@ -42,8 +45,13 @@ void Tank::createBehaviourTree()
 	selector[0].addChild(&moveTowardsPlayer);
 }
 
-Vector2 Tank::getClosestMonsterPos()
+Vector2 Tank::getClosestMonsterPos(Level *level)
 {
+	for (auto& monsters : level->monsterAgents)
+	{
+
+	}
+
 	return Vector2(0,0);
 }
 

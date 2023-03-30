@@ -21,6 +21,10 @@ public:
 	Monster monster;
 	Tank tank;
 
+	std::vector<Monster*> monsterAgents;
+
+	std::vector<Agent*> pending_agents; // Agents that will be added at the beginning of the next frame
+
 private:
 	int last_id = 0;
 
@@ -31,15 +35,13 @@ private:
 	std::unordered_map<int, Agent*> id_to_agent;
 	std::vector<Agent*> all_agents;
 
-	std::vector<Agent*> pending_agents; // Agents that will be added at the beginning of the next frame
-
 	Texture background;
-
 
 public:
 	Agent* get_agent(int id);
 
 	//Agent* spawn_agent(SillyAgent agent);
+	Monster* spawnMonster(Monster &monster);
 	// @AddMoreHere
 
 	void initialize();

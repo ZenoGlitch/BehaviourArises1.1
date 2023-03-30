@@ -6,8 +6,9 @@
 class Monster : public Agent
 {
 public:
+	Monster() = default;
 
-	void initialize();
+	void initialize(Level *level);
 
 	void sense(Level *level) override;
 	void decide() override;
