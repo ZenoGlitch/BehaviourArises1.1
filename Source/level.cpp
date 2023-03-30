@@ -6,6 +6,7 @@ void Level::initialize()
 	tA.initialize(this);
 	monster.initialize(this);
 	tank.initialize(this);
+	healer.initialize(this);
 }
 
 void Level::input()

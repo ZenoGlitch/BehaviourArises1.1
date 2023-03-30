@@ -5,6 +5,7 @@
 #include "testAgent.h"
 #include "monster.h"
 #include "tank.h"
+#include "healer.h"
 
 #include <vector>
 #include <unordered_map>
@@ -20,6 +21,7 @@ public:
 	TestAgent tA;
 	Monster monster;
 	Tank tank;
+	Healer healer;
 
 	std::vector<Monster*> monsterAgents;
 

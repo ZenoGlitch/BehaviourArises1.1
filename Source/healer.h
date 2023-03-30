@@ -20,6 +20,7 @@ public:
 private:
 
 	Texture healerTex;
+	float angle;
 
 	const float maxEnergy = 75;
 	float energy = maxEnergy;
