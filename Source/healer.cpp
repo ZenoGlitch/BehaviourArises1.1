@@ -36,15 +36,15 @@ void Healer::draw(Level* level)
     DrawTexturePro(healerTex, rectSrc, rectDst, origin, angle, WHITE);
 
     // Draw health bar
-    const float borderSize = 4;
-    const float halfBorderSize = borderSize / 2;
-    const float healtBarHeight = 10;
-    const float healthBarOffsetX = 20;
-    const float healthBarPosX = pos.x - origin.x + healthBarOffsetX ;
-    const float healthBarOffsetY = 20;
-    const float healthBarPosY = pos.y - origin.y - healthBarOffsetY;
-    DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
-    DrawRectangle(healthBarPosX, healthBarPosY, energy / 2, healtBarHeight, RED);
+    const int borderSize = 4;
+    const int halfBorderSize = borderSize / 2;
+    const int healtBarHeight = 10;
+    const int healthBarOffsetX = 20;
+    const int healthBarPosX = (int)pos.x - (int)origin.x + healthBarOffsetX ;
+    const int healthBarOffsetY = 20;
+    const int healthBarPosY = (int)pos.y - (int)origin.y - healthBarOffsetY;
+    DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (int)(maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
+    DrawRectangle(healthBarPosX, healthBarPosY, (int)(energy / 2), healtBarHeight, RED);
 }
 
 float Healer::getEnergy()

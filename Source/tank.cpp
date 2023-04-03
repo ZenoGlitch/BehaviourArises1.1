@@ -8,6 +8,7 @@ void Tank::initialize(Level *level)
 	Vector2 spawnPos = { (float)(GetScreenWidth() / 2) + 100, (float)(GetScreenHeight() / 2)};
 	setPosition(spawnPos);
 	level->pending_agents.push_back(this);
+	createBehaviourTree();
 }
 
 void Tank::sense(Level* level)
@@ -22,7 +23,7 @@ void Tank::decide()
 
 void Tank::act(Level* level)
 {
-
+	selector[0].run(level);
 }
 
 void Tank::draw(Level* level)
@@ -54,9 +55,15 @@ float Tank::getEnergy()
 	return energy;
 }
 
+float Tank::getScale()
+{
+	return scale;
+}
+
 void Tank::createBehaviourTree()
 {
 	bT.setRootChild(&selector[0]);
+	selector[0].addChild(&checkOwnHealth);
 	selector[0].addChild(&moveTowardsPlayer);
 }
 
@@ -64,9 +71,29 @@ Vector2 Tank::getClosestMonsterPos(Level *level)
 {
 	for (auto& monsters : level->monsterAgents)
 	{
+		
+	}
+		float lastDistance = 10000000;
+		float distance = 100000;
+		Vector2 closestMonsterPos = { lastDistance, lastDistance };
+	for (int i = 0; i < level->monsterAgents.size(); ++i)
+	{
+		Vector2 pos = getPosition();
+		Vector2 monsterPos = level->monsterAgents.at(i)->getPosition();
+		if (distance < lastDistance)
+		{
+			lastDistance = distance;
+			distance = Vector2Distance(pos, monsterPos);
+			closestMonsterPos = monsterPos;
 
+		}
 	}
 
-	return Vector2(0,0);
+	return closestMonsterPos;
+}
+
+void Tank::setRotation(float p_rotation)
+{
+	rotation = p_rotation;
 }
 

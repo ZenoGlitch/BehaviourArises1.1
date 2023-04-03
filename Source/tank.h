@@ -16,25 +16,42 @@ public:
 	void draw(Level *level) override;
 
 	float getEnergy() override;
+	float getScale();
 
 	Vector2 getClosestMonsterPos(Level *level);
+
+	void setRotation(float p_rotation);
+
+	const float moveSpeed = 100;
+	const float maxEnergy = 200;
+
+	enum State
+	{
+		runningAway,
+		defendingPlayer, 
+		defendingHealer,
+		attacking,
+		idle
+	} state = idle;
 
 private:
 
 	void createBehaviourTree();
 
-	const float maxEnergy = 200;
 	float energy = maxEnergy;
 
 	const float scale = 1.7f;
 	float rotation = 0;
 	Texture tankTex;
 
-	// BehaviourTree stuff below
+
+
+	// BehaviourTree stuff
 	BehaviourTree bT;
 	BehaviourTree::Selector selector[2];
 	Action moveTowardsHealer = Action("moveTowardsHealer", 100);
-	Action moveTowardsPlayer = Action("moveTowardsPLayer", 100);
+	Action moveTowardsPlayer = Action("moveTowardsPlayer", 100);
+	Action checkOwnHealth = Action("tankCheckOwnHealth", 100);
 
 
 };

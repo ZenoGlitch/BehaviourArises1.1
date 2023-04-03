@@ -3,39 +3,41 @@
 void Level::initialize()
 {
 	background = LoadTexture("Assets/background.png");
-	tA.initialize(this);
+	player.initialize(this);
 	monster.initialize(this);
 	tank.initialize(this);
 	healer.initialize(this);
+	
+	//spawnMonster(Monster());
 }
 
 void Level::input()
 {
 	const int moveSpeed = 200;
-	Vector2 pos = tA.getPosition();
+	Vector2 pos = player.getPosition();
 	if (IsKeyDown(KEY_W))
 	{
 		pos.y -= GetFrameTime() * moveSpeed;
-		tA.setPosition(pos);
+		player.setPosition(pos);
 	}
 	if (IsKeyDown(KEY_A))
 	{
 		pos.x -= GetFrameTime() * moveSpeed;
-		tA.setPosition(pos);
+		player.setPosition(pos);
 	}
 	if (IsKeyDown(KEY_S))
 	{
 		pos.y += GetFrameTime() * moveSpeed;
-		tA.setPosition(pos);
+		player.setPosition(pos);
 	}
 	if (IsKeyDown(KEY_D))
 	{
 		pos.x += GetFrameTime() * moveSpeed;
-		tA.setPosition(pos);
+		player.setPosition(pos);
 	}
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 	{
-		tA.attack();
+		player.attack();
 	}
 }
 
@@ -136,8 +138,36 @@ void Level::update()
 
 	monster.decide();
 
-	tA.act(this);
+	player.act(this);
+	tank.act(this);
 	monster.act(this);
+
+
+
+	for (auto& monsters : monsterAgents)
+	{
+
+		if (!damageTaken)
+		{
+			if (player.swordTipPos.x <= monsters->getPosition().x + monsters->size && player.swordTipPos.x >= monsters->getPosition().x - monsters->size
+				&& player.swordTipPos.y <= monsters->getPosition().y + monsters->size && player.swordTipPos.y >= monsters->getPosition().y - monsters->size)
+			{
+				monsters->damage(5);
+				damageTaken = true;
+
+			}
+		}
+	}
+		if (damageTaken)
+		{
+			damageCooldown -= GetFrameTime();
+
+		}
+		if (damageCooldown <= 0)
+		{
+			damageCooldown = 2;
+			damageTaken = false;
+		}
 
 	for (auto& monsters : monsterAgents)
 	{

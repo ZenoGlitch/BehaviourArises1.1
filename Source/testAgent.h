@@ -19,6 +19,9 @@ public:
 	float getEnergy() override;
 
 	void attack();
+
+	Vector2 swordTipPos;
+
 private:
 
 	const float size = 25;
@@ -30,6 +33,5 @@ private:
 	Texture swordTex;
 
 	float angle;
-	Vector2 swordTipPos;
 
 };

@@ -7,16 +7,17 @@ void Monster::initialize(Level *level)
 	setPosition(randSpawnPoint());
 	monsterTex = LoadTexture("Assets/monster1.png");
 	createBehaviourTree();
-	level->pending_agents.push_back(this);
+	level->monsterAgents.push_back(this);
+	level->pending_agents.push_back(level->monsterAgents.back());
 }
 
 void Monster::sense(Level *level)
 {
 	Vector2 pos = getPosition();
 	// what target is closest? Tank/Healer/Player?
-	float distanceToPlayer = Vector2Distance(pos, level->tA.getPosition());
-	float distanceToTank = Vector2Distance(pos, Vector2(10000, 10000)); // change this for tank pos
-	float distanceToHealer = Vector2Distance(pos, Vector2(10000, 10000)); // change this for healer pos
+	float distanceToPlayer = Vector2Distance(pos, level->player.getPosition());
+	float distanceToTank   = Vector2Distance(pos, level->tank.getPosition()); // change this for tank pos
+	float distanceToHealer = Vector2Distance(pos, level->healer.getPosition()); // change this for healer pos
 
 	if (distanceToHealer < distanceToTank && distanceToHealer < distanceToPlayer)
 	{
@@ -57,7 +58,7 @@ void Monster::act(Level *level)
 {
 	if (target == Player)
 	{
-		targetPos = level->tA.getPosition();
+		targetPos = level->player.getPosition();
 	}
 
 	if (target == Tank)
@@ -75,14 +76,16 @@ void Monster::act(Level *level)
 
 	moveTowards(targetPos);
 
-	if (selector[0].run(level)) //THIS CRASHES WITH READ ACCESS VIOLATION WTH
-	{
-		printf("and returned successfully\n");
-	}
-	else
-	{
-		printf("something failed\n");
-	}
+	selector[0].run(level);
+
+	//if (selector[0].run(level)) //THIS CRASHES WITH READ ACCESS VIOLATION WTH
+	//{
+	//	printf("and returned successfully\n");
+	//}
+	//else
+	//{
+	//	printf("something failed\n");
+	//}
 }
 
 void Monster::draw(Level *level)
@@ -103,6 +106,18 @@ void Monster::draw(Level *level)
 	Rectangle rectDst = { pos.x, pos.y, monsterTex.width * scale, monsterTex.height * scale };
 	Vector2 origin = { (monsterTex.width / 2) * scale, (monsterTex.height / 2) * scale };
 	DrawTexturePro(monsterTex, rectSrc, rectDst, origin, angle + 30, WHITE);
+
+
+	// Draw health bar
+	const float borderSize = 4;
+	const float halfBorderSize = borderSize / 2;
+	const float healtBarHeight = 10;
+	const float healthBarPosX = pos.x - origin.x / 2;
+	const float healthBarOffsetY = 20;
+	const float healthBarPosY = pos.y - origin.y - healthBarOffsetY;
+	DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
+	DrawRectangle(healthBarPosX, healthBarPosY, energy / 2, healtBarHeight, RED);
+
 }
 
 float Monster::getEnergy()
@@ -150,6 +165,12 @@ void Monster::moveTowards(Vector2 target)
 		pos.y -= moveSpeed * GetFrameTime();
 	}
 	setPosition(pos);
+}
+
+void Monster::damage(float damageAmount)
+{
+	energy = energy - damageAmount;
+	printf("monster takes damage\n");
 }
 
 void Monster::createBehaviourTree()

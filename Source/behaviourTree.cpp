@@ -76,22 +76,59 @@ bool Action::run(Level *level)
 	// GENERIC BT ACTIONS
 	if (name == "testing1")
 	{
-		printf("test 1 succeeded\n");
+		//printf("test 1 succeeded\n");
 		return true;
 	}
 
-	if (name == "moveTowardsPlayer")
-	{
-		float distanceToPLayer = Vector2Distance(level->tank.getPosition(), level->tA.getPosition());
-		//rotate towards player
 
 
-
-		//move towards player
-	}
 
 
 	// TANK BT ACTIONS
+	if (name == "tankCheckOwnHealth")
+	{
+		float health = level->tank.getEnergy();
+		if (health < level->tank.maxEnergy / 2)
+		{
+			level->tank.state = level->tank.runningAway;
+		}
+	}
+
+	if (name == "moveTowardsPlayer") // move Tank towards Player
+	{
+		/*float distanceToPLayer = Vector2Distance(level->tank.getPosition(), level->tA.getPosition());*/
+		
+		Vector2 pos = level->tank.getPosition();
+		Vector2 targetPos = level->player.getPosition();
+
+		//rotate towards player
+		//Calulate angle
+		Vector2 diff = Vector2Subtract(pos, targetPos);
+		float angle = -atan2f(diff.x, diff.y) * RAD2DEG;
+		level->tank.setRotation(angle);
+
+
+		//move towards player
+		if (pos.x < targetPos.x)
+		{
+			pos.x += level->tank.moveSpeed * GetFrameTime();
+		}
+		if (pos.x > targetPos.x)
+		{
+			pos.x -= level->tank.moveSpeed * GetFrameTime();
+		}
+		if (pos.y < targetPos.y)
+		{
+			pos.y += level->tank.moveSpeed * GetFrameTime();
+		}
+		if (pos.y > targetPos.y)
+		{
+			pos.y -= level->tank.moveSpeed * GetFrameTime();
+		}
+
+		level->tank.setPosition(pos);
+		return true;
+	}
 
 	// HEALER BT ACTIONS
 

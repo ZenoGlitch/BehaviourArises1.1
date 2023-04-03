@@ -21,8 +21,11 @@ public:
 	Vector2 randSpawnPoint();
 	void moveTowards(Vector2 target);
 
+	void damage(float damageAmount);
+
 	void createBehaviourTree();
 
+	const float size = 20;
 
 private:
 
@@ -33,9 +36,10 @@ private:
 
 	Texture monsterTex;
 
-	const float moveSpeed = 100;
-	const float size = 20;
-	float energy = 10;
+	const float moveSpeed = 75;
+
+	const float maxEnergy = 75;
+	float energy = maxEnergy;
 
 	Vector2 targetPos;
 

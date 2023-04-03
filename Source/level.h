@@ -18,7 +18,7 @@ class Level;
 class Level 
 {
 public:
-	TestAgent tA;
+	TestAgent player;
 	Monster monster;
 	Tank tank;
 	Healer healer;
@@ -39,10 +39,15 @@ private:
 
 	Texture background;
 
+	float damageCooldown = 2;
+	bool damageTaken = false;
+
 public:
 	Agent* get_agent(int id);
 
 	//Agent* spawn_agent(SillyAgent agent);
+
+
 	Monster* spawnMonster(Monster &monster);
 	// @AddMoreHere
 

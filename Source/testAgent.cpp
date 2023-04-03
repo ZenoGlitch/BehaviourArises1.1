@@ -52,6 +52,7 @@ void TestAgent::draw(Level* level)
 	Vector2 swordOrigin = { (float)(swordTex.width / 2), (float)swordTex.height };
 	DrawTexturePro(swordTex, swordRectSrc, SwordRectDst, swordOrigin, angle, WHITE);
 	swordTipPos = { lineEndPos.x + scaled.x * 2, lineEndPos.y + scaled.y * 2 };
+
 	//DrawCircle(swordTipPos.x, swordTipPos.y, 10, BLUE);
 
 	// Draw player
@@ -65,14 +66,14 @@ void TestAgent::draw(Level* level)
 
 
 	// Draw health bar
-	const float borderSize = 4;
-	const float halfBorderSize = borderSize / 2;
-	const float healtBarHeight = 10;
-	const float healthBarPosX = pos.x - pOriginX;
-	const float healthBarOffsetY = 20;
-	const float healthBarPosY = pos.y - pOriginY - healthBarOffsetY;
-	DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
-	DrawRectangle(healthBarPosX, healthBarPosY, energy / 2, healtBarHeight, RED);
+	const int borderSize = 4;
+	const int halfBorderSize = borderSize / 2;
+	const int healtBarHeight = 10;
+	const int healthBarPosX = (int)pos.x - (int)pOriginX;
+	const int healthBarOffsetY = 20;
+	const int healthBarPosY = (int)pos.y - (int)pOriginY - healthBarOffsetY;
+	DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (int)(maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
+	DrawRectangle(healthBarPosX, healthBarPosY, (int)(energy / 2), healtBarHeight, RED);
 
 }
 
