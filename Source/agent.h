@@ -8,6 +8,8 @@ class Agent
 {
 public:
 
+
+
 	int id = 0;
 
 	virtual void sense(Level* level) = 0;
@@ -16,9 +18,13 @@ public:
 
 	virtual void draw(Level* level) = 0;
 
+	Vector2 getPosition();
 	void setPosition(Vector2 p_position);
 
-	Vector2 getPosition();
+	float getMoveSpeed();
+	void setMoveSpeed(float p_moveSpeed);
+
+	void setRotation(float p_angle);
 
 	virtual float getEnergy() = 0;
 
@@ -33,5 +39,7 @@ private:
 	Vector2 position = {};
 	bool dead = false;
 
-
+protected:
+	float angle;
+	float moveSpeed;
 };

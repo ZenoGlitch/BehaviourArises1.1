@@ -52,6 +52,11 @@ float Healer::getEnergy()
     return energy;
 }
 
+float Healer::getMaxEnergy()
+{
+    return maxEnergy;
+}
+
 void Healer::createBehaviourTree()
 {
     bT.setRootChild(&selector[0]);

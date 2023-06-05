@@ -16,6 +16,7 @@ public:
 	void draw(Level* level) override;
 
 	float getEnergy() override;
+	float getMaxEnergy();
 
 private:
 

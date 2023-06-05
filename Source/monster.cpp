@@ -7,8 +7,8 @@ void Monster::initialize(Level *level)
 	setPosition(randSpawnPoint());
 	monsterTex = LoadTexture("Assets/monster1.png");
 	createBehaviourTree();
-	level->monsterAgents.push_back(this);
-	level->pending_agents.push_back(level->monsterAgents.back());
+	//level->monsterAgents.push_back(this);
+	//level->pending_agents.push_back(level->monsterAgents.back());
 }
 
 void Monster::sense(Level *level)
@@ -75,6 +75,8 @@ void Monster::act(Level *level)
 	//}
 
 	moveTowards(targetPos);
+
+	//bT.run(level);
 
 	selector[0].run(level);
 

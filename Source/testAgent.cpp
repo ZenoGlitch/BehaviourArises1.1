@@ -82,6 +82,11 @@ float TestAgent::getEnergy()
 	return energy;
 }
 
+float TestAgent::getMaxEnergy()
+{
+	return maxEnergy;
+}
+
 float attacktimer = 5;
 void TestAgent::attack()
 {

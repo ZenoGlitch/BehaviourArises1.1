@@ -7,8 +7,30 @@ void Level::initialize()
 	monster.initialize(this);
 	tank.initialize(this);
 	healer.initialize(this);
+	initialize_behaviour_tree();
 	
-	//spawnMonster(Monster());
+	spawnMonster(Monster());
+	for (auto& monsters : monsterAgents)
+	{
+		monsters.initialize(this);
+	}
+
+}
+
+void Level::initialize_behaviour_tree()
+{	
+	//tBt.setRootChild(&selector[0]);
+	tank_selector[0].addChild(&tank_sequence[0]);
+	tank_sequence[0].addChild(&tank_checkOwnHealth);
+	tank_sequence[0].addChild(&moveTowardsHealer);
+	tank_selector[0].addChild(&tank_sequence[1]);
+	tank_sequence[1].addChild(&tank_checkAlliesHealth);
+	tank_sequence[1].addChild(&tank_moveToLowestHealthAlly);
+	//tank_sequence[1].addChild(&tank_selector[1]);
+	
+
+	////tank_selector[0].addChild(&checkOwnHealth);
+	tank_selector[0].addChild(&moveTowardsPlayer);
 }
 
 void Level::input()
@@ -97,11 +119,11 @@ void Level::remove_dead_and_add_pending_agents()
 //	return result;
 //}
 
-Monster* Level::spawnMonster(Monster &monster)
+Monster* Level::spawnMonster(Monster monster)
 {
 	Monster* result = nullptr;
-	monsterAgents.push_back(&monster);
-	result = monsterAgents.back();
+	monsterAgents.push_back(monster);
+	result = &monsterAgents.back();
 
 	pending_agents.push_back(result);
 
@@ -125,13 +147,13 @@ void Level::update()
 
 	for (auto& monsters : monsterAgents)
 	{
-		monsters->sense(this);
+		monsters.sense(this);
 
 	}
 
 	for (auto& monsters : monsterAgents)
 	{
-		monsters->decide();
+		monsters.decide();
 	}
 
 	monster.sense(this);
@@ -139,7 +161,8 @@ void Level::update()
 	monster.decide();
 
 	player.act(this);
-	tank.act(this);
+	tank.update(this);
+	//tBt.run(this);
 	monster.act(this);
 
 
@@ -149,10 +172,10 @@ void Level::update()
 
 		if (!damageTaken)
 		{
-			if (player.swordTipPos.x <= monsters->getPosition().x + monsters->size && player.swordTipPos.x >= monsters->getPosition().x - monsters->size
-				&& player.swordTipPos.y <= monsters->getPosition().y + monsters->size && player.swordTipPos.y >= monsters->getPosition().y - monsters->size)
+			if (player.swordTipPos.x <= monsters.getPosition().x + monsters.size && player.swordTipPos.x >= monsters.getPosition().x - monsters.size
+				&& player.swordTipPos.y <= monsters.getPosition().y + monsters.size && player.swordTipPos.y >= monsters.getPosition().y - monsters.size)
 			{
-				monsters->damage(5);
+				monsters.damage(5);
 				damageTaken = true;
 
 			}
@@ -171,7 +194,7 @@ void Level::update()
 
 	for (auto& monsters : monsterAgents)
 	{
-		monsters->act(this);
+		monsters.act(this);
 	}
 
 	//std::cout << monster.getPosition().x << std::endl;
@@ -197,4 +220,39 @@ void Level::draw()
 	{
 		agent->draw(this);
 	}
+
+
+}
+
+void Level::moveAgentTowardsOtherAgent(Agent& agentToMove, Vector2 targetAgentPos)
+{
+	Vector2 pos = agentToMove.getPosition();
+	Vector2 targetPos = targetAgentPos;
+
+	//Calulate angle
+	Vector2 diff = Vector2Subtract(pos, targetPos);
+	float angle = -atan2f(diff.x, diff.y) * RAD2DEG;
+	//rotate towards healer
+	agentToMove.setRotation(angle);
+
+
+	//move towards healer
+	if (pos.x < targetPos.x)
+	{
+		pos.x += agentToMove.getMoveSpeed() * GetFrameTime();
+	}
+	if (pos.x > targetPos.x)
+	{
+		pos.x -= agentToMove.getMoveSpeed() * GetFrameTime();
+	}
+	if (pos.y < targetPos.y)
+	{
+		pos.y += agentToMove.getMoveSpeed() * GetFrameTime();
+	}
+	if (pos.y > targetPos.y)
+	{
+		pos.y -= agentToMove.getMoveSpeed() * GetFrameTime();
+	}
+
+	agentToMove.setPosition(pos);
 }
