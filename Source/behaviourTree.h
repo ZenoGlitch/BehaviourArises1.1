@@ -12,18 +12,6 @@ public:
 
 	BehaviourTree();
 
-	//enum TankActions
-	//{
-	//	tank_checkOwnHealth,
-	//	tank_checkAllyHealth,
-	//	tank_moveTankTowardsHealer,
-	//	tank_moveTankTowardsPlayer,
-	//	tank_moveTankTowardsMonster,
-	//	tank_attack,
-
-	//} tankAction = tank_checkOwnHealth;
-
-
 	struct Node
 	{
 		virtual bool run(Level* level) = 0;
@@ -99,11 +87,7 @@ public:
 	void setRootChild(Selector* rootChild);
 	bool run(Level* level) const { return root->run(level); }
 
-	
-
 private:
-
-
 
 	Root* root;
 
@@ -118,35 +102,4 @@ struct Action : public BehaviourTree::Node
 	int probabilityOfSuccess;
 	bool run(Level* level) override; // pass in agent as argument
 
-
 };
-
-//class MonsterBT : public BehaviourTree
-//{
-//
-//};
-
-//class TankBT : public BehaviourTree
-//{
-//public:
-//
-//	TankBT();
-//
-//	//BehaviourTree tBT;
-//
-//	//TankBT::Selector selector[2];
-//	//TankBT::Selector selector1 = selector[0];
-//	//Action moveTowardsHealer = Action("moveTowardsHealer", 100);
-//	//Action moveTowardsPlayer = Action("moveTowardsPlayer", 100);
-//	//Action checkOwnHealth = Action("tankCheckOwnHealth", 100);
-//
-//	//const TankBT::Selector &GetRoot();
-//	void setRootChild(Selector* rootChild);
-//
-//	Root* tBT_root;
-//};
-
-//class HealerBT : public BehaviourTree
-//{
-//
-//};

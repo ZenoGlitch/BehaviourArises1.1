@@ -9,35 +9,18 @@ void Tank::initialize(Level *level)
 	setPosition(spawnPos);
 	setMoveSpeed(100.0f);
 	level->pending_agents.push_back(this);
-	//createBehaviourTree();
 }
 
-void Tank::sense(Level* level)
+void Tank::sense(Level* level) // deprecated
 {
-	//if (energy <= maxEnergy / 4)
-	//{
-	//	lowEnergy = true;
-	//}
-	//else
-	//{
-	//	lowEnergy = false;
-	//}
 }
 
-void Tank::decide()
+void Tank::decide() // deprecated
 {
-
 }
 
-void Tank::act(Level* level)
+void Tank::act(Level* level) // deprecated
 {
-	//TankBT *BT = &BehaviourTree::tBT;
-	//TankBT::Selector *selector111;
-	//selector111 = TankBT::tBT.GetRoot();
-
-	//selector[0].run(level);
-
-
 }
 
 void Tank::update(Level* level)

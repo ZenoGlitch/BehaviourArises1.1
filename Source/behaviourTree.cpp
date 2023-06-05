@@ -173,88 +173,16 @@ bool Action::run(Level *level)
 
 
 	// TANK BT ACTIONS
-	
-	//if (name == "tankCheckOwnHealth")
-	//{
-	//	float health = level->tank.getEnergy();
-	//	if (health < level->tank.maxEnergy / 2)
-	//	{
-	//		level->tank.state = level->tank.runningAway;
-	//	}
-	//}
 
-	//if (name == "moveTowardsPlayer") // move Tank towards Player
 	if (actionId == level->tank_moveTankTowardsPlayerId)
 	{
-		//Vector2 pos = level->tank.getPosition();
-		//Vector2 targetPos = level->player.getPosition();
-
-		////Calulate angle
-		//Vector2 diff = Vector2Subtract(pos, targetPos);
-		//float angle = -atan2f(diff.x, diff.y) * RAD2DEG;
-		////rotate towards player
-		//level->tank.setRotation(angle);
-
-
-		////move towards player
-		//if (pos.x < targetPos.x)
-		//{
-		//	pos.x += level->tank.moveSpeed * GetFrameTime();
-		//}
-		//if (pos.x > targetPos.x)
-		//{
-		//	pos.x -= level->tank.moveSpeed * GetFrameTime();
-		//}
-		//if (pos.y < targetPos.y)
-		//{
-		//	pos.y += level->tank.moveSpeed * GetFrameTime();
-		//}
-		//if (pos.y > targetPos.y)
-		//{
-		//	pos.y -= level->tank.moveSpeed * GetFrameTime();
-		//}
-
-		//level->tank.setPosition(pos);
-
 		level->moveAgentTowardsOtherAgent(level->tank, level->player.getPosition());
 
 		return true;
 	}
 
-
-	//if (name == "moveTowardsHealer") // move Tank towards Healer
 	if (actionId == level->tank_moveTankTowardsHealerId)
 	{
-		//Vector2 pos = level->tank.getPosition();
-		//Vector2 targetPos = level->healer.getPosition();
-
-		////Calulate angle
-		//Vector2 diff = Vector2Subtract(pos, targetPos);
-		//float angle = -atan2f(diff.x, diff.y) * RAD2DEG;
-		////rotate towards healer
-		//level->tank.setRotation(angle);
-
-
-		////move towards healer
-		//if (pos.x < targetPos.x)
-		//{
-		//	pos.x += level->tank.moveSpeed * GetFrameTime();
-		//}
-		//if (pos.x > targetPos.x)
-		//{
-		//	pos.x -= level->tank.moveSpeed * GetFrameTime();
-		//}
-		//if (pos.y < targetPos.y)
-		//{
-		//	pos.y += level->tank.moveSpeed * GetFrameTime();
-		//}
-		//if (pos.y > targetPos.y)
-		//{
-		//	pos.y -= level->tank.moveSpeed * GetFrameTime();
-		//}
-
-		//level->tank.setPosition(pos);
-
 		level->moveAgentTowardsOtherAgent(level->tank, level->healer.getPosition());
 		return true;
 	}
@@ -266,21 +194,3 @@ bool Action::run(Level *level)
 
 	return false;
 }
-
-//TankBT::TankBT()
-//{
-////	TankBT::tBT.setRootChild(&selector[0]);
-////	TankBT::selector[0].addChild(&checkOwnHealth);
-////	TankBT::selector[0].addChild(&moveTowardsPlayer);
-////	
-//}
-//
-////const TankBT::Selector &TankBT::GetRoot()
-////{
-////	//return TankBT::selector1;
-////}
-//
-//void TankBT::setRootChild(Selector* rootChild)
-//{
-//	tBT_root->setChild(rootChild);
-//}
