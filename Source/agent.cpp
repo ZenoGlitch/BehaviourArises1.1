@@ -30,11 +30,6 @@ void Agent::setRotation(float p_angle)
 	angle = p_angle;
 }
 
-//void Agent::damage(float p_damage)
-//{
-//	energy = energy - p_damage;
-//}
-
 Agent::Type Agent::getType(Agent* agent)
 {
 	return agent->type;

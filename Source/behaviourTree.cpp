@@ -14,7 +14,6 @@ void BehaviourTree::setRootChild(Selector* rootChild)
 
 const std::vector<BehaviourTree::Node*>& BehaviourTree::CompositeNode::getChildren()
 {
-	// // O: insert return statement here
 	 return children;
 }
 
@@ -130,8 +129,6 @@ bool BehaviourTree::DecoratorAction::run(Level* level, Agent* agent)
 		}
 	}
 
-
-
 	return false;
 }
 
@@ -229,28 +226,10 @@ bool Action::run(Level *level, Agent* agent)
 				}
 				monsters.setTargetPos(newTarget);
 				monsters.moveTowards(newTarget);
-				/*return true;*/
 			}
 			return true;
 		}
 	}
-
-	//for (auto& monster : level->monsterAgents)
-	//{
-	//	if (level->monster_notInAttackRange.condition)
-	//	{
-	//		if (actionId == level->monster_moveToClosestTarget_id)
-	//		{
-	//	
-	//			Vector2 monsterPos = agent->getPosition();
-	//			Vector2 targetPos = monster.getTargetPos();
-
-	//			level->moveAgentTowardsOtherAgent(monster, targetPos);
-	//		
-	//			return true;
-	//		}
-	//	}
-	//}
 
 	if (agent->type == Agent::type_monster)
 	{
@@ -269,35 +248,6 @@ bool Action::run(Level *level, Agent* agent)
 		}
 	}
 
-
-
-	//for (auto& monster : level->monsterAgents)
-	//{
-	//	if (level->monster_inAttackRange.condition)
-	//	{
-	//		if (actionId == level->monster_attack_id)
-	//		{
-	//			if (level->monster.target == monster.Healer)
-	//			{
-	//				float healerHealth = level->healer.getEnergy();
-	//				/*return true;*/
-	//			}
-	//			if (level->monster.target == monster.Tank)
-	//			{
-	//				level->tank.damage(5);
-	//				/*return true;*/
-	//			}
-	//			if (level->monster.target == monster.Player)
-	//			{
-	//				level->player.damage(5);
-	//				/*return true;*/
-	//			}
-	//			
-	//			return true;
-	//		}
-	//	}
-	//}
-
 	if (/*agent != nullptr &&*/ agent->type == Agent::type_monster && agent->inAttackRange)
 	{
 		if (actionId == level->monster_attack_id)
@@ -305,25 +255,19 @@ bool Action::run(Level *level, Agent* agent)
 			if (agent->target == agent->Healer)
 			{
 				float healerHealth = level->healer.getEnergy();
-				/*return true;*/
 			}
 			if (agent->target == agent->Tank)
 			{
 				level->tank.damage(5);
-				/*return true;*/
 			}
 			if (agent->target == agent->Player)
 			{
 				level->player.damage(5);
-				/*return true;*/
 			}
 
 			return true;
 		}
 	}
-
-
-
 
 	return false;
 }
