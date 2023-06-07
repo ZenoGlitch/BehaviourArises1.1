@@ -31,11 +31,11 @@ void BehaviourTree::CompositeNode::addChildren(std::initializer_list<Node*>&& ne
 	}
 }
 
-bool BehaviourTree::Selector::run(Level* level)
+bool BehaviourTree::Selector::run(Level* level, Agent* agent)
 {
 	for (auto *child : getChildren())   // The generic Selector implementation
 	{
-		if (child->run(level))  // If one child succeeds, the entire operation run() succeeds.  Failure only results if all children fail.
+		if (child->run(level, agent))  // If one child succeeds, the entire operation run() succeeds.  Failure only results if all children fail.
 		{
 			return true;
 
@@ -44,16 +44,16 @@ bool BehaviourTree::Selector::run(Level* level)
 	return false;  // All children failed so the entire run() operation fails.
 }
 
-bool BehaviourTree::Sequence::run(Level* level)
+bool BehaviourTree::Sequence::run(Level* level, Agent* agent)
 {
 	for (auto *child : getChildren()) {  // The generic Sequence implementation.
-		if (!child->run(level))  // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
+		if (!child->run(level, agent))  // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
 			return false;
 	}
 	return true;  // All children suceeded, so the entire run() operation succeeds.
 }
 
-bool BehaviourTree::DecoratorConditional::run(Level* level)
+bool BehaviourTree::DecoratorConditional::run(Level* level, Agent* agent)
 {
 	if (condition)
 	{
@@ -67,13 +67,13 @@ void BehaviourTree::DecoratorConditional::setCondition(bool p_condition)
 	condition = p_condition;
 }
 
-bool BehaviourTree::DecoratorSelector::run(Level* level)
+bool BehaviourTree::DecoratorSelector::run(Level* level, Agent* agent)
 {
 	if (condition)
 	{
 		for (auto* child : getChildren())   // The generic Selector implementation
 		{
-			if (child->run(level))  // If one child succeeds, the entire operation run() succeeds.  Failure only results if all children fail.
+			if (child->run(level, agent))  // If one child succeeds, the entire operation run() succeeds.  Failure only results if all children fail.
 			{
 				return true;
 
@@ -89,12 +89,12 @@ void BehaviourTree::DecoratorSelector::setCondition(bool p_condition)
 	condition = p_condition;
 }
 
-bool BehaviourTree::DecoratorSequence::run(Level* level)
+bool BehaviourTree::DecoratorSequence::run(Level* level, Agent* agent)
 {
 	if (condition)
 	{
 		for (auto* child : getChildren()) {  // The generic Sequence implementation.
-			if (!child->run(level))  // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
+			if (!child->run(level, agent))  // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
 				return false;
 		}
 		return true;  // All children suceeded, so the entire run() operation succeeds.
@@ -114,9 +114,9 @@ BehaviourTree::DecoratorAction::DecoratorAction(int p_actionId)
 {
 }
 
-bool BehaviourTree::DecoratorAction::run(Level* level)
+bool BehaviourTree::DecoratorAction::run(Level* level, Agent* agent)
 {
-	if (actionId == level->tank_moveTankTowardsLowestHealthAllyId)
+	if (actionId == level->tank_moveToLowestHealthAlly_Id)
 	{
 		if (condition) // healer has lowest health
 		{
@@ -129,6 +129,8 @@ bool BehaviourTree::DecoratorAction::run(Level* level)
 			return true;
 		}
 	}
+
+
 
 	return false;
 }
@@ -148,10 +150,10 @@ void BehaviourTree::Root::setChild(Selector *newChild)
 	child = newChild;
 }
 
-bool BehaviourTree::Root::run(Level* level)
+bool BehaviourTree::Root::run(Level* level, Agent* agent)
 {
 	if (child != nullptr)
-	return child->run(level);
+	return child->run(level, agent);
 	else return false;
 
 }
@@ -168,22 +170,29 @@ Action::Action(int p_actionId)
 {
 }
 
-bool Action::run(Level *level)
+bool Action::run(Level *level, Agent* agent)
 {
-
 
 	// TANK BT ACTIONS
 
-	if (actionId == level->tank_moveTankTowardsPlayerId)
+	if (actionId == level->tank_moveToPlayer_Id)
 	{
-		level->moveAgentTowardsOtherAgent(level->tank, level->player.getPosition());
-
+		Vector2 playerPos = level->player.getPosition();
+		level->moveAgentTowardsOtherAgent(level->tank, playerPos);
 		return true;
 	}
 
-	if (actionId == level->tank_moveTankTowardsHealerId)
+	if (actionId == level->tank_moveToHealer_Id)
 	{
-		level->moveAgentTowardsOtherAgent(level->tank, level->healer.getPosition());
+		Vector2 healerPos = level->healer.getPosition();
+		level->moveAgentTowardsOtherAgent(level->tank, healerPos);
+		return true;
+	}
+
+	if (actionId == level->tank_moveToMonster_Id)
+	{
+		Vector2 monsterPos = level->tank.getClosestMonsterPos(level);
+		level->moveAgentTowardsOtherAgent(level->tank, monsterPos);
 		return true;
 	}
 	
@@ -191,6 +200,130 @@ bool Action::run(Level *level)
 	// HEALER BT ACTIONS
 
 	// MONSTER BT ACTIONS
+
+	for (auto& monsters : level->monsterAgents)
+	{
+		if (level->monster_checkOwnHealth.condition)
+		{
+			if (actionId == level->monster_runAway_id)
+			{
+				//printf("MONSTER RUNNING AWAY!!\n");
+				Vector2 currentTarget = monsters.getTargetPos();
+				Vector2 monsterPos = monsters.getPosition();
+				Vector2 newTarget;
+				if (monsterPos.x < currentTarget.x)
+				{
+					newTarget.x = 0;
+				}
+				else
+				{
+					newTarget.x = GetScreenWidth();
+				}
+				if (monsterPos.y < currentTarget.y)
+				{
+					newTarget.y = 0;
+				}
+				else
+				{
+					newTarget.y = GetScreenHeight();
+				}
+				monsters.setTargetPos(newTarget);
+				monsters.moveTowards(newTarget);
+				/*return true;*/
+			}
+			return true;
+		}
+	}
+
+	//for (auto& monster : level->monsterAgents)
+	//{
+	//	if (level->monster_notInAttackRange.condition)
+	//	{
+	//		if (actionId == level->monster_moveToClosestTarget_id)
+	//		{
+	//	
+	//			Vector2 monsterPos = agent->getPosition();
+	//			Vector2 targetPos = monster.getTargetPos();
+
+	//			level->moveAgentTowardsOtherAgent(monster, targetPos);
+	//		
+	//			return true;
+	//		}
+	//	}
+	//}
+
+	if (agent->type == Agent::type_monster)
+	{
+		if (!agent->inAttackRange)
+		{
+			if (actionId == level->monster_moveToClosestTarget_id)
+			{
+				//printf("moving to target\n");
+				Vector2 monsterPos = agent->getPosition();
+				Vector2 targetPos = agent->getTargetPos();
+
+				level->moveAgentTowardsOtherAgent(*agent, targetPos);
+
+				return true;
+			}
+		}
+	}
+
+
+
+	//for (auto& monster : level->monsterAgents)
+	//{
+	//	if (level->monster_inAttackRange.condition)
+	//	{
+	//		if (actionId == level->monster_attack_id)
+	//		{
+	//			if (level->monster.target == monster.Healer)
+	//			{
+	//				float healerHealth = level->healer.getEnergy();
+	//				/*return true;*/
+	//			}
+	//			if (level->monster.target == monster.Tank)
+	//			{
+	//				level->tank.damage(5);
+	//				/*return true;*/
+	//			}
+	//			if (level->monster.target == monster.Player)
+	//			{
+	//				level->player.damage(5);
+	//				/*return true;*/
+	//			}
+	//			
+	//			return true;
+	//		}
+	//	}
+	//}
+
+	if (/*agent != nullptr &&*/ agent->type == Agent::type_monster && agent->inAttackRange)
+	{
+		if (actionId == level->monster_attack_id)
+		{
+			if (agent->target == agent->Healer)
+			{
+				float healerHealth = level->healer.getEnergy();
+				/*return true;*/
+			}
+			if (agent->target == agent->Tank)
+			{
+				level->tank.damage(5);
+				/*return true;*/
+			}
+			if (agent->target == agent->Player)
+			{
+				level->player.damage(5);
+				/*return true;*/
+			}
+
+			return true;
+		}
+	}
+
+
+
 
 	return false;
 }

@@ -24,17 +24,16 @@ public:
 	Tank tank;
 	Healer healer;
 
-	//TankBT tBt;
 
 	// Tank BT stuff
 	enum TankActionId
 	{
 		//tank_checkOwnHealthId,
 		//tank_checkAllyHealthId,
-		tank_moveTankTowardsHealerId,
-		tank_moveTankTowardsPlayerId,
-		tank_moveTankTowardsLowestHealthAllyId,
-		tank_moveTankTowardsMonsterId,
+		tank_moveToHealer_Id,
+		tank_moveToPlayer_Id,
+		tank_moveToLowestHealthAlly_Id,
+		tank_moveToMonster_Id,
 		tank_attackId,
 
 	};
@@ -43,16 +42,40 @@ public:
 	BehaviourTree::Selector tank_selector[2];
 	BehaviourTree::DecoratorConditional tank_checkOwnHealth;
 	BehaviourTree::DecoratorConditional tank_checkAlliesHealth;
-	BehaviourTree::DecoratorAction tank_moveToLowestHealthAlly = BehaviourTree::DecoratorAction(tank_moveTankTowardsLowestHealthAllyId);
-	Action moveTowardsHealer = Action(tank_moveTankTowardsHealerId);
-	Action moveTowardsPlayer = Action(tank_moveTankTowardsPlayerId);
+	BehaviourTree::DecoratorAction tank_moveToLowestHealthAlly = BehaviourTree::DecoratorAction(tank_moveToLowestHealthAlly_Id);
+	Action tank_moveTowardsHealer = Action(tank_moveToHealer_Id);
 
-	//Action moveTowardsHealer = Action("moveTowardsHealer", 100);
-	//Action moveTowardsPlayer = Action("moveTowardsPlayer", 100);
-	//Action checkOwnHealth = Action("tankCheckOwnHealth", 100);
+	Action tank_moveTowardsMonster = Action(tank_moveToMonster_Id);
+
+	//Action moveTowardsPlayer = Action(tank_moveToPlayer_Id);
 
 	// End of Tank BT stuff
 	
+
+	// Healer BT stuff
+
+	// End of Healer BT stuff
+
+
+	// Monster BT stuff
+	enum MonsterActionId
+	{
+		monster_checkOwnHealth_id = 5,
+		monster_runAway_id,
+		monster_moveToClosestTarget_id,
+		monster_attack_id,
+	};
+
+	BehaviourTree::Sequence monster_sequence[3];
+	BehaviourTree::Selector monster_selector;
+	BehaviourTree::DecoratorConditional monster_checkOwnHealth;
+	Action monster_runAway = Action(monster_runAway_id);
+	BehaviourTree::DecoratorConditional monster_notInAttackRange;
+	Action monster_moveToClosestTarget = Action(monster_moveToClosestTarget_id);
+	BehaviourTree::DecoratorConditional monster_inAttackRange;
+	Action monster_attack = Action(monster_attack_id);
+
+	// End of Monster BT stuff
 
 	//std::vector<Monster*> monsterAgents;
 	std::list<Monster> monsterAgents;
@@ -76,6 +99,9 @@ private:
 	bool damageTaken = false;
 
 public:
+
+	//Level() = default;
+
 	Agent* get_agent(int id);
 
 	//Agent* spawn_agent(SillyAgent agent);
@@ -93,6 +119,8 @@ public:
 	void update();
 	void draw();
 
+	void damageMonstersWithPlayersSword();
+	void damageAgent(Agent &p_agent);
 	void moveAgentTowardsOtherAgent(Agent &agentToMove, Vector2 targetAgentPos);
 
 private:

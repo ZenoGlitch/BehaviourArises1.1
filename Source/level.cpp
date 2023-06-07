@@ -10,6 +10,7 @@ void Level::initialize()
 	initialize_behaviour_tree();
 	
 	spawnMonster(Monster());
+	spawnMonster(Monster());
 	for (auto& monsters : monsterAgents)
 	{
 		monsters.initialize(this);
@@ -19,40 +20,54 @@ void Level::initialize()
 
 void Level::initialize_behaviour_tree()
 {	
-	//tBt.setRootChild(&selector[0]);
+	// Tank BT setup
 	tank_selector[0].addChild(&tank_sequence[0]);
 	tank_sequence[0].addChild(&tank_checkOwnHealth);
-	tank_sequence[0].addChild(&moveTowardsHealer);
+	tank_sequence[0].addChild(&tank_moveTowardsHealer);
 	tank_selector[0].addChild(&tank_sequence[1]);
 	tank_sequence[1].addChild(&tank_checkAlliesHealth);
 	tank_sequence[1].addChild(&tank_moveToLowestHealthAlly);
 	//tank_sequence[1].addChild(&tank_selector[1]);
-	
 
-	////tank_selector[0].addChild(&checkOwnHealth);
-	tank_selector[0].addChild(&moveTowardsPlayer);
+	tank_selector[0].addChild(&tank_moveTowardsMonster);
+
+	// Healer BT setup
+
+
+	// Monster BT setup
+	monster_selector.addChild(&monster_sequence[0]); // first branch
+	monster_sequence[0].addChild(&monster_checkOwnHealth);
+	monster_sequence[0].addChild(&monster_runAway);
+	monster_selector.addChild(&monster_sequence[1]); // second branch
+	monster_sequence[1].addChild(&monster_notInAttackRange);
+	monster_sequence[1].addChild(&monster_moveToClosestTarget);
+	monster_selector.addChild(&monster_sequence[2]); // third branch
+	monster_sequence[2].addChild(&monster_inAttackRange);
+	monster_sequence[2].addChild(&monster_attack);
+
+
 }
 
 void Level::input()
 {
 	const int moveSpeed = 200;
 	Vector2 pos = player.getPosition();
-	if (IsKeyDown(KEY_W))
+	if (IsKeyDown(KEY_W) && pos.y > 0)
 	{
 		pos.y -= GetFrameTime() * moveSpeed;
 		player.setPosition(pos);
 	}
-	if (IsKeyDown(KEY_A))
+	if (IsKeyDown(KEY_A) && pos.x > 0)
 	{
 		pos.x -= GetFrameTime() * moveSpeed;
 		player.setPosition(pos);
 	}
-	if (IsKeyDown(KEY_S))
+	if (IsKeyDown(KEY_S) && pos.y < GetScreenHeight())
 	{
 		pos.y += GetFrameTime() * moveSpeed;
 		player.setPosition(pos);
 	}
-	if (IsKeyDown(KEY_D))
+	if (IsKeyDown(KEY_D) && pos.x < GetScreenWidth())
 	{
 		pos.x += GetFrameTime() * moveSpeed;
 		player.setPosition(pos);
@@ -145,56 +160,33 @@ void Level::update()
 {
 	remove_dead_and_add_pending_agents();
 
-	for (auto& monsters : monsterAgents)
-	{
-		monsters.sense(this);
+	//for (auto& monsters : monsterAgents)
+	//{
+	//	monsters.sense(this);
+	//}
 
-	}
+	//for (auto& monsters : monsterAgents)
+	//{
+	//	monsters.decide();
+	//}
 
-	for (auto& monsters : monsterAgents)
-	{
-		monsters.decide();
-	}
-
-	monster.sense(this);
-
-	monster.decide();
+	//monster.sense(this);
+	//monster.decide();
 
 	player.act(this);
 	tank.update(this);
 	//tBt.run(this);
-	monster.act(this);
+	//monster.act(this);
+	//monster.update(this);
 
+
+	damageMonstersWithPlayersSword();
 
 
 	for (auto& monsters : monsterAgents)
 	{
-
-		if (!damageTaken)
-		{
-			if (player.swordTipPos.x <= monsters.getPosition().x + monsters.size && player.swordTipPos.x >= monsters.getPosition().x - monsters.size
-				&& player.swordTipPos.y <= monsters.getPosition().y + monsters.size && player.swordTipPos.y >= monsters.getPosition().y - monsters.size)
-			{
-				monsters.damage(5);
-				damageTaken = true;
-
-			}
-		}
-	}
-		if (damageTaken)
-		{
-			damageCooldown -= GetFrameTime();
-
-		}
-		if (damageCooldown <= 0)
-		{
-			damageCooldown = 2;
-			damageTaken = false;
-		}
-
-	for (auto& monsters : monsterAgents)
-	{
-		monsters.act(this);
+		/*monsters.act(this);*/
+		monsters.update(this);
 	}
 
 	//std::cout << monster.getPosition().x << std::endl;
@@ -210,7 +202,6 @@ void Level::update()
 
 void Level::draw()
 {
-
 	DrawTexture(background,0 ,0, WHITE);
 	//tank.draw(this);
 	//tA.draw(this);
@@ -220,8 +211,39 @@ void Level::draw()
 	{
 		agent->draw(this);
 	}
+}
 
+void Level::damageMonstersWithPlayersSword()
+{
+	for (auto& monsters : monsterAgents)
+	{
+		if (!damageTaken)
+		{
+			if ( player.swordTipPos.x <= monsters.getPosition().x + monsters.size &&
+				 player.swordTipPos.x >= monsters.getPosition().x - monsters.size &&
+				 player.swordTipPos.y <= monsters.getPosition().y + monsters.size &&
+			     player.swordTipPos.y >= monsters.getPosition().y - monsters.size )
+			{
+				monsters.damage(5);
+				damageTaken = true;
+			}
+		}
+	}
 
+	if (damageTaken)
+	{
+		damageCooldown -= GetFrameTime();
+	}
+	if (damageCooldown <= 0)
+	{
+		damageCooldown = 2;
+		damageTaken = false;
+	}
+}
+
+void Level::damageAgent(Agent& p_agent)
+{
+	
 }
 
 void Level::moveAgentTowardsOtherAgent(Agent& agentToMove, Vector2 targetAgentPos)
@@ -229,29 +251,40 @@ void Level::moveAgentTowardsOtherAgent(Agent& agentToMove, Vector2 targetAgentPo
 	Vector2 pos = agentToMove.getPosition();
 	Vector2 targetPos = targetAgentPos;
 
-	//Calulate angle
+	// Calulate angle
 	Vector2 diff = Vector2Subtract(pos, targetPos);
 	float angle = -atan2f(diff.x, diff.y) * RAD2DEG;
-	//rotate towards healer
-	agentToMove.setRotation(angle);
+	// Rotate towards target
+	if (pos.x >= targetPos.x + 10 || pos.x <= targetPos.x - 10)
+	{
+		if (pos.y >= targetPos.y + 10 || pos.y <= targetPos.y - 10)
+		{
+			agentToMove.setRotation(angle);
+		}
+	}
 
-
-	//move towards healer
-	if (pos.x < targetPos.x)
+	// Move towards target
+	if (targetPos.x > 0 && targetPos.x < GetScreenWidth())
 	{
-		pos.x += agentToMove.getMoveSpeed() * GetFrameTime();
+		if (pos.x < targetPos.x - 45)
+		{
+			pos.x += agentToMove.getMoveSpeed() * GetFrameTime();
+		}
+		if (pos.x > targetPos.x + 45)
+		{
+			pos.x -= agentToMove.getMoveSpeed() * GetFrameTime();
+		}
 	}
-	if (pos.x > targetPos.x)
+	if (targetPos.y > 0 && targetPos.y < GetScreenHeight())
 	{
-		pos.x -= agentToMove.getMoveSpeed() * GetFrameTime();
-	}
-	if (pos.y < targetPos.y)
-	{
-		pos.y += agentToMove.getMoveSpeed() * GetFrameTime();
-	}
-	if (pos.y > targetPos.y)
-	{
-		pos.y -= agentToMove.getMoveSpeed() * GetFrameTime();
+		if (pos.y < targetPos.y - 45)
+		{
+			pos.y += agentToMove.getMoveSpeed() * GetFrameTime();
+		}
+		if (pos.y > targetPos.y + 45)
+		{
+			pos.y -= agentToMove.getMoveSpeed() * GetFrameTime();
+		}
 	}
 
 	agentToMove.setPosition(pos);

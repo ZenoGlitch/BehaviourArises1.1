@@ -8,18 +8,29 @@ class Agent
 {
 public:
 
+	enum Type
+	{
+		type_tank, type_healer, type_monster, type_player
+	} type;
+
+	enum Target
+	{
+		Tank, Healer, Player, Count
+	} target;
 
 
 	int id = 0;
 
-	virtual void sense(Level* level) = 0;
-	virtual void decide() = 0;
-	virtual void act(Level* level) = 0;
+	virtual void sense(Level* level) = 0; // deprecated
+	virtual void decide() = 0;			  // deprecated
+	virtual void act(Level* level) = 0;   // deprecated
 
 	virtual void draw(Level* level) = 0;
 
 	Vector2 getPosition();
 	void setPosition(Vector2 p_position);
+
+	Vector2 getTargetPos();
 
 	float getMoveSpeed();
 	void setMoveSpeed(float p_moveSpeed);
@@ -28,11 +39,17 @@ public:
 
 	virtual float getEnergy() = 0;
 
+	void setType(Type p_type);
+	Type getType(Agent *agent);
+
+	//void damage(float p_damage);
 	void killAgent();
 	bool isDead();
 
 
 	virtual ~Agent() = default;
+
+	bool inAttackRange = false;
 
 private:
 
@@ -42,4 +59,5 @@ private:
 protected:
 	float angle;
 	float moveSpeed;
+	Vector2 targetPos;
 };

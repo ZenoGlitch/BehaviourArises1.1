@@ -16,6 +16,8 @@ public:
 
 	void draw(Level *level) override;
 
+	void damage(float p_damage);
+
 	float getEnergy() override;
 	float getMaxEnergy();
 

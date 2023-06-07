@@ -4,6 +4,7 @@
 
 void Tank::initialize(Level *level)
 {
+	setType(type_tank);
 	tankTex = LoadTexture("Assets/tank.png");
 	Vector2 spawnPos = { (float)(GetScreenWidth() / 2) + 100, (float)(GetScreenHeight() / 2)};
 	setPosition(spawnPos);
@@ -57,7 +58,7 @@ void Tank::update(Level* level)
 		}
 	
 
-	level->tank_selector[0].run(level);
+	level->tank_selector[0].run(level, nullptr);
 }
 
 void Tank::draw(Level* level)
@@ -82,6 +83,11 @@ void Tank::draw(Level* level)
 	const float healthBarPosY = pos.y - origin.y - healthBarOffsetY;
 	DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
 	DrawRectangle(healthBarPosX, healthBarPosY, energy / 2, healtBarHeight, RED);
+}
+
+void Tank::damage(float p_damage)
+{
+	energy = energy - p_damage;
 }
 
 float Tank::getEnergy()

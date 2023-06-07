@@ -77,6 +77,12 @@ void TestAgent::draw(Level* level)
 
 }
 
+void TestAgent::damage(float p_damage)
+{
+	energy = energy - p_damage;
+}
+
+
 float TestAgent::getEnergy()
 {
 	return energy;

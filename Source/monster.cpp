@@ -4,90 +4,129 @@
 
 void Monster::initialize(Level *level)
 {
+	setType(type_monster);
 	setPosition(randSpawnPoint());
 	monsterTex = LoadTexture("Assets/monster1.png");
-	createBehaviourTree();
+	setMoveSpeed(75);
+	//createBehaviourTree();
 	//level->monsterAgents.push_back(this);
 	//level->pending_agents.push_back(level->monsterAgents.back());
+	level->pending_agents.push_back(this);
 }
 
 void Monster::sense(Level *level)
 {
-	Vector2 pos = getPosition();
-	// what target is closest? Tank/Healer/Player?
-	float distanceToPlayer = Vector2Distance(pos, level->player.getPosition());
-	float distanceToTank   = Vector2Distance(pos, level->tank.getPosition()); // change this for tank pos
-	float distanceToHealer = Vector2Distance(pos, level->healer.getPosition()); // change this for healer pos
+	//Vector2 pos = getPosition();
+	//// what target is closest? Tank/Healer/Player?
+	//float distanceToPlayer = Vector2Distance(pos, level->player.getPosition());
+	//float distanceToTank   = Vector2Distance(pos, level->tank.getPosition()); // change this for tank pos
+	//float distanceToHealer = Vector2Distance(pos, level->healer.getPosition()); // change this for healer pos
 
-	if (distanceToHealer < distanceToTank && distanceToHealer < distanceToPlayer)
-	{
-		healerIsClosest = true;
-	}
-	else healerIsClosest = false;
-	if (distanceToPlayer < distanceToTank && distanceToPlayer < distanceToHealer)
-	{
-		playerIsClosest = true;
-	}
-	else playerIsClosest = false;
-	if (distanceToTank < distanceToPlayer && distanceToTank < distanceToHealer)
-	{
-		tankIsClosest = true;
-	}
-	else tankIsClosest = false;
+	//if (distanceToHealer < distanceToTank && distanceToHealer < distanceToPlayer)
+	//{
+	//	healerIsClosest = true;
+	//}
+	//else healerIsClosest = false;
+	//if (distanceToPlayer < distanceToTank && distanceToPlayer < distanceToHealer)
+	//{
+	//	playerIsClosest = true;
+	//}
+	//else playerIsClosest = false;
+	//if (distanceToTank < distanceToPlayer && distanceToTank < distanceToHealer)
+	//{
+	//	tankIsClosest = true;
+	//}
+	//else tankIsClosest = false;
 
 }
 
 void Monster::decide()
 {
-	if (healerIsClosest)
-	{
-		target = Healer;
-	}
-	if (tankIsClosest)
-	{
-		target = Tank;
-	}
-	if (playerIsClosest)
-	{
-		target = Player;
-	}
+	//if (healerIsClosest)
+	//{
+	//	target = Healer;
+	//}
+	//if (tankIsClosest)
+	//{
+	//	target = Tank;
+	//}
+	//if (playerIsClosest)
+	//{
+	//	target = Player;
+	//}
 
 }
 
 void Monster::act(Level *level)
 {
-	if (target == Player)
-	{
-		targetPos = level->player.getPosition();
-	}
+	//if (target == Player)
+	//{
+	//	targetPos = level->player.getPosition();
+	//}
 
-	if (target == Tank)
-	{
-		targetPos = level->tank.getPosition();
-	}
 	//if (target == Tank)
 	//{
 	//	targetPos = level->tank.getPosition();
 	//}
-	//if (target == Healer)
-	//{
-	//	targetPos = level->healer.getPosition();
-	//}
+	////if (target == Tank)
+	////{
+	////	targetPos = level->tank.getPosition();
+	////}
+	////if (target == Healer)
+	////{
+	////	targetPos = level->healer.getPosition();
+	////}
 
-	moveTowards(targetPos);
+	//moveTowards(targetPos);
 
-	//bT.run(level);
+	////bT.run(level);
 
-	selector[0].run(level);
+	////selector[0].run(level);
 
-	//if (selector[0].run(level)) //THIS CRASHES WITH READ ACCESS VIOLATION WTH
-	//{
-	//	printf("and returned successfully\n");
-	//}
-	//else
-	//{
-	//	printf("something failed\n");
-	//}
+	////if (selector[0].run(level)) //THIS CRASHES WITH READ ACCESS VIOLATION WTH
+	////{
+	////	printf("and returned successfully\n");
+	////}
+	////else
+	////{
+	////	printf("something failed\n");
+	////}
+}
+
+void Monster::update(Level *level)
+{
+	if (energy <= 0)
+	{
+		killAgent();
+	}
+	if (energy <= maxEnergy / 4)
+	{
+		level->monster_checkOwnHealth.setCondition(true);
+	}
+	else
+	{
+		level->monster_checkOwnHealth.setCondition(false);
+	}
+
+
+	findClosestTarget(level);
+	
+
+	if (distanceToTarget <= 70)
+	{
+		level->monster_notInAttackRange.setCondition(false);
+		level->monster_inAttackRange.setCondition(true);
+		inAttackRange = true;
+	}
+	else
+	{
+		level->monster_inAttackRange.setCondition(false);
+		level->monster_notInAttackRange.setCondition(true);
+		inAttackRange = false;
+	}
+
+
+	level->monster_selector.run(level, this);
 }
 
 void Monster::draw(Level *level)
@@ -96,7 +135,7 @@ void Monster::draw(Level *level)
 	//DrawCircle(pos.x, pos.y, size, BROWN);
 	
 
-	float angle = 0;
+	//float angle = 0;
 	//Calulate angle
 
 	Vector2 diff = Vector2Subtract(pos, targetPos);
@@ -152,19 +191,19 @@ void Monster::moveTowards(Vector2 target)
 	Vector2 pos = getPosition();
 	if (pos.x < target.x)
 	{
-		pos.x += moveSpeed * GetFrameTime();
+		pos.x += getMoveSpeed() * GetFrameTime();
 	}
 	else if (pos.x > target.x)
 	{
-		pos.x -= moveSpeed * GetFrameTime();
+		pos.x -= getMoveSpeed() * GetFrameTime();
 	}
 	if (pos.y < target.y)
 	{
-		pos.y += moveSpeed * GetFrameTime();
+		pos.y += getMoveSpeed() * GetFrameTime();
 	}
 	else if (pos.y > target.y)
 	{
-		pos.y -= moveSpeed * GetFrameTime();
+		pos.y -= getMoveSpeed() * GetFrameTime();
 	}
 	setPosition(pos);
 }
@@ -172,13 +211,80 @@ void Monster::moveTowards(Vector2 target)
 void Monster::damage(float damageAmount)
 {
 	energy = energy - damageAmount;
-	printf("monster takes damage\n");
+	//printf("monster takes damage\n");
 }
 
 void Monster::createBehaviourTree()
 {
 
-	bT.setRootChild(&selector[0]);
-	selector[0].addChild(&testAction);
+	//bT.setRootChild(&selector[0]);
+	//selector[0].addChild(&testAction);
 }
+
+void Monster::findClosestTarget(Level *level)
+{
+	Vector2 pos = getPosition();
+	// what target is closest? Tank/Healer/Player?
+	float distanceToPlayer = Vector2Distance(pos, level->player.getPosition());
+	float distanceToTank   = Vector2Distance(pos, level->tank.getPosition()); 
+	float distanceToHealer = Vector2Distance(pos, level->healer.getPosition()); 
+
+	if (distanceToHealer < distanceToTank && distanceToHealer < distanceToPlayer)
+	{
+		//healerIsClosest = true;
+		distanceToTarget = distanceToHealer;
+		target = Healer;
+	}
+	//else healerIsClosest = false;
+	if (distanceToPlayer < distanceToTank && distanceToPlayer < distanceToHealer)
+	{
+		//playerIsClosest = true;
+		distanceToTarget = distanceToPlayer;
+		target = Player;
+	}
+	//else playerIsClosest = false;
+	if (distanceToTank < distanceToPlayer && distanceToTank < distanceToHealer)
+	{
+		//tankIsClosest = true;
+		distanceToTarget = distanceToTank;
+		target = Tank;
+	}
+	//else tankIsClosest = false;
+
+	//if (healerIsClosest)
+	//{
+	//	target = Healer;
+	//}
+	//if (tankIsClosest)
+	//{
+	//	target = Tank;
+	//}
+	//if (playerIsClosest)
+	//{
+	//	target = Player;
+	//}
+
+
+
+	if (target == Player)
+	{
+		targetPos = level->player.getPosition();
+	}
+
+	if (target == Tank)
+	{
+		targetPos = level->tank.getPosition();
+	}
+}
+
+//Vector2 Monster::getTargetPos()
+//{
+//	return targetPos;
+//}
+
+void Monster::setTargetPos(Vector2 p_targetPos)
+{
+	targetPos = p_targetPos;
+}
+
 
