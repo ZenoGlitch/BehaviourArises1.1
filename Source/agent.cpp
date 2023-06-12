@@ -30,15 +30,36 @@ void Agent::setRotation(float p_angle)
 	angle = p_angle;
 }
 
+void Agent::setType(Type p_type)
+{
+	type = p_type;
+}
+
 Agent::Type Agent::getType(Agent* agent)
 {
 	return agent->type;
 }
 
-void Agent::setType(Type p_type)
+void Agent::setMaxAttackCooldown(float p_maxCooldown)
 {
-	type = p_type;
+	maxAttackCooldown = p_maxCooldown;
 }
+
+float Agent::getMaxAttackCooldown()
+{
+	return maxAttackCooldown;
+}
+
+void Agent::setAttackCooldown(float p_attackCooldown)
+{
+	attackCooldown = p_attackCooldown;
+}
+
+float Agent::getAttackCooldown()
+{
+	return attackCooldown;
+}
+
 
 void Agent::killAgent()
 {

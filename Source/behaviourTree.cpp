@@ -252,18 +252,26 @@ bool Action::run(Level *level, Agent* agent)
 	{
 		if (actionId == level->monster_attack_id)
 		{
-			if (agent->target == agent->Healer)
+			if (agent->attackCooldown <= 0.0f)
 			{
-				float healerHealth = level->healer.getEnergy();
+				if (agent->target == agent->Healer)
+				{
+					float healerHealth = level->healer.getEnergy();
+					agent->attackCooldown = agent->maxAttackCooldown;
+				}
+				if (agent->target == agent->Tank)
+				{
+					level->tank.damage(5);
+					agent->attackCooldown = agent->maxAttackCooldown;
+				}
+				if (agent->target == agent->Player)
+				{
+					level->player.damage(5);
+					agent->attackCooldown = agent->maxAttackCooldown;
+				}
+
 			}
-			if (agent->target == agent->Tank)
-			{
-				level->tank.damage(5);
-			}
-			if (agent->target == agent->Player)
-			{
-				level->player.damage(5);
-			}
+			agent->attackCooldown -= GetFrameTime();
 
 			return true;
 		}

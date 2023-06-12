@@ -8,6 +8,8 @@ void Monster::initialize(Level *level)
 	setPosition(randSpawnPoint());
 	monsterTex = LoadTexture("Assets/monster1.png");
 	setMoveSpeed(75);
+	setMaxAttackCooldown(2.0f);
+	setAttackCooldown(maxAttackCooldown);
 	level->pending_agents.push_back(this);
 }
 

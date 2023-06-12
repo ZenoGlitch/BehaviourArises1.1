@@ -42,6 +42,12 @@ public:
 	void setType(Type p_type);
 	Type getType(Agent *agent);
 
+	void setMaxAttackCooldown(float p_maxCooldown);
+	float getMaxAttackCooldown();
+
+	void setAttackCooldown(float p_cooldown);
+	float getAttackCooldown();
+
 	//void damage(float p_damage);
 	void killAgent();
 	bool isDead();
@@ -50,6 +56,8 @@ public:
 	virtual ~Agent() = default;
 
 	bool inAttackRange = false;
+	float maxAttackCooldown = -1;
+	float attackCooldown = maxAttackCooldown;
 
 private:
 
