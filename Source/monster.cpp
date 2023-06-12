@@ -2,15 +2,20 @@
 
 #include "level.h"
 
-void Monster::initialize(Level *level)
+//Monster::Monster()
+//{
+//	initialize(/*level*/);
+//}
+
+void Monster::initialize(/*Level *level*/)
 {
 	setType(type_monster);
 	setPosition(randSpawnPoint());
 	monsterTex = LoadTexture("Assets/monster1.png");
 	setMoveSpeed(75);
-	setMaxAttackCooldown(2.0f);
+	setMaxAttackCooldown(1.5f);
 	setAttackCooldown(maxAttackCooldown);
-	level->pending_agents.push_back(this);
+	//level->pending_agents.push_back(this);
 }
 
 void Monster::sense(Level *level)
@@ -94,8 +99,11 @@ void Monster::act(Level *level)
 
 void Monster::update(Level *level)
 {
-	if (energy <= 0)
+	if (energy <= 0 && !isDead())
 	{
+		level->killCounter = level->killCounter + 1;
+		level->maxMonsterCount = level->maxMonsterCount + 1;
+		
 		killAgent();
 	}
 	if (energy <= maxEnergy / 4)

@@ -4,7 +4,7 @@ void Level::initialize()
 {
 	background = LoadTexture("Assets/background.png");
 	player.initialize(this);
-	monster.initialize(this);
+	//monster.initialize(/*this*/);
 	tank.initialize(this);
 	healer.initialize(this);
 	initialize_behaviour_tree();
@@ -13,7 +13,8 @@ void Level::initialize()
 	spawnMonster(Monster());
 	for (auto& monsters : monsterAgents)
 	{
-		monsters.initialize(this);
+		monsters.initialize(/*this*/);
+		pending_agents.push_back(&monsters);
 	}
 
 }
@@ -32,6 +33,25 @@ void Level::initialize_behaviour_tree()
 	tank_selector[0].addChild(&tank_moveTowardsMonster);
 
 	// Healer BT setup
+	healer_selector[0].addChild(&healer_sequence[0]); // first branch
+	healer_sequence[0].addChild(&healer_checkOwnHealth);
+	healer_sequence[0].addChild(&healer_runAway);
+	healer_selector[0].addChild(&healer_sequence[1]); // second branch
+	healer_sequence[1].addChild(&healer_checkAlliesHealth);
+	healer_sequence[1].addChild(&healer_selector[1]);
+	healer_selector[1].addChild(&healer_sequence[2]);
+	healer_sequence[2].addChild(&healer_notInHealingRange);
+	healer_sequence[2].addChild(&healer_moveToLowestHealthAlly);
+	healer_selector[1].addChild(&healer_sequence[3]);
+	healer_sequence[3].addChild(&healer_inHealrange);
+	healer_sequence[3].addChild(&healer_healTarget);
+	healer_selector[0].addChild(&healer_selector[2]); // third branch
+	healer_selector[2].addChild(&healer_sequence[4]);
+	healer_sequence[4].addChild(&healer_notInAttackRange);
+	healer_sequence[4].addChild(&healer_moveToMonster);
+	healer_selector[2].addChild(&healer_sequence[5]);
+	healer_sequence[5].addChild(&healer_inAttackRange);
+	healer_sequence[5].addChild(&healer_attack);
 
 
 	// Monster BT setup
@@ -50,8 +70,9 @@ void Level::initialize_behaviour_tree()
 
 void Level::input()
 {
-	const int moveSpeed = 200;
 	Vector2 pos = player.getPosition();
+	float moveSpeed = player.getMoveSpeed();
+
 	if (IsKeyDown(KEY_W) && pos.y > 0)
 	{
 		pos.y -= GetFrameTime() * moveSpeed;
@@ -107,6 +128,7 @@ void Level::remove_dead_and_add_pending_agents()
 	// This must happen _after_ we remove agents from the vector 'all_agents'.
 	// @AddMoreHere
 	//silly_agents.remove_if([](SillyAgent& a){ return a.dead; });
+	monsterAgents.remove_if([](Monster& a) {return a.isDead(); });
 
 
 	// Add all pending agents
@@ -175,6 +197,7 @@ void Level::update()
 
 	player.act(this);
 	tank.update(this);
+	healer.update(this);
 	//tBt.run(this);
 	//monster.act(this);
 	//monster.update(this);
@@ -189,7 +212,23 @@ void Level::update()
 		monsters.update(this);
 	}
 
-	//std::cout << monster.getPosition().x << std::endl;
+	if (monsterAgents.size() < maxMonsterCount)
+	{
+		for (int i = monsterAgents.size(); i < maxMonsterCount; i++)
+		{
+			Monster* newMonster = spawnMonster(Monster());
+			newMonster->initialize();
+			pending_agents.push_back(newMonster);
+		}
+		//Monster* monster1 = spawnMonster(Monster());
+		//Monster* monster2 = spawnMonster(Monster());
+		//monster1->initialize();
+		//monster2->initialize();
+		//pending_agents.push_back(monster1);
+		//pending_agents.push_back(monster2);
+
+	}
+
 
 	//for(auto& agent : all_agents)
 	//{
@@ -198,6 +237,9 @@ void Level::update()
 	//	agent->decide();
 	//	agent->act(this);
 	//}
+
+
+	printf("monster agents: %i \n", (int)monsterAgents.size());
 }
 
 void Level::draw()
@@ -211,6 +253,8 @@ void Level::draw()
 	{
 		agent->draw(this);
 	}
+
+	DrawText(TextFormat("Kills: %i", killCounter), 30, GetScreenHeight() - 70, 50, BLACK);
 }
 
 void Level::damageMonstersWithPlayersSword()
@@ -259,6 +303,7 @@ void Level::moveAgentTowardsOtherAgent(Agent& agentToMove, Vector2 targetAgentPo
 	{
 		if (pos.y >= targetPos.y + 10 || pos.y <= targetPos.y - 10)
 		{
+			
 			agentToMove.setRotation(angle);
 		}
 	}
@@ -288,4 +333,24 @@ void Level::moveAgentTowardsOtherAgent(Agent& agentToMove, Vector2 targetAgentPo
 	}
 
 	agentToMove.setPosition(pos);
+}
+
+Vector2 Level::getClosestMonsterPos(Agent *agent)
+{
+	float lastDistance = 10000000;
+	float distance = 100000;
+	Vector2 closestMonsterPos = { lastDistance, lastDistance };
+	for (auto& monsters : monsterAgents)
+	{
+		Vector2 pos = agent->getPosition();
+		Vector2 monsterPos = monsters.getPosition();
+		if (distance < lastDistance)
+		{
+			lastDistance = distance;
+			distance = Vector2Distance(pos, monsterPos);
+			closestMonsterPos = monsterPos;
+		}
+	}
+
+	return closestMonsterPos;
 }

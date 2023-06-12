@@ -16,6 +16,7 @@ public:
 
 	void draw(Level *level) override;
 
+	void heal(float p_health);
 	void damage(float p_damage);
 
 	float getEnergy() override;

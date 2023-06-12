@@ -35,7 +35,7 @@ public:
 		tank_moveToLowestHealthAlly_Id,
 		tank_moveToMonster_Id,
 		tank_attackId,
-
+		tank_count
 	};
 
 	BehaviourTree::Sequence tank_sequence[2];
@@ -53,6 +53,35 @@ public:
 	
 
 	// Healer BT stuff
+	enum HealerActionId
+	{
+		healer_checkOwnHealth_id = tank_count + 1,
+		healer_runAway_id,
+		healer_checkAllyHealth_id,
+		healer_moveToLowestHealthAlly_id,
+		healer_healTarget_id,
+		healer_moveToMonster_id,
+		healer_attack_id,
+		healer_count
+	};
+
+	BehaviourTree::Sequence healer_sequence[6];
+	BehaviourTree::Selector healer_selector[3];
+	BehaviourTree::DecoratorConditional healer_checkOwnHealth;
+	Action healer_runAway = Action(healer_runAway_id);
+	BehaviourTree::DecoratorConditional healer_checkAlliesHealth;
+	BehaviourTree::DecoratorConditional healer_notInHealingRange;
+	Action healer_moveToLowestHealthAlly = Action(healer_moveToLowestHealthAlly_id);
+	Action healer_healTarget = Action(healer_healTarget_id);
+	BehaviourTree::DecoratorConditional healer_inHealrange;
+	BehaviourTree::DecoratorConditional healer_notInAttackRange;
+	Action healer_moveToMonster = Action(healer_moveToMonster_id);
+	BehaviourTree::DecoratorConditional healer_inAttackRange;
+	Action healer_attack = Action(healer_attack_id);
+
+
+
+
 
 	// End of Healer BT stuff
 
@@ -60,7 +89,7 @@ public:
 	// Monster BT stuff
 	enum MonsterActionId
 	{
-		monster_checkOwnHealth_id = 5,
+		monster_checkOwnHealth_id = healer_count + 1,
 		monster_runAway_id,
 		monster_moveToClosestTarget_id,
 		monster_attack_id,
@@ -83,6 +112,11 @@ public:
 
 	std::vector<Agent*> pending_agents; // Agents that will be added at the beginning of the next frame
 
+	float healingCooldown = 2;
+	int killCounter = 0;
+	int maxMonsterCount = 2;
+
+
 private:
 	int last_id = 0;
 
@@ -95,12 +129,12 @@ private:
 
 	Texture background;
 
-	float damageCooldown = 2;
+	float damageCooldown = 1;
 	bool damageTaken = false;
 
 public:
 
-	//Level() = default;
+	Level() = default;
 
 	Agent* get_agent(int id);
 
@@ -122,6 +156,7 @@ public:
 	void damageMonstersWithPlayersSword();
 	void damageAgent(Agent &p_agent);
 	void moveAgentTowardsOtherAgent(Agent &agentToMove, Vector2 targetAgentPos);
+	Vector2 getClosestMonsterPos(Agent* agent);
 
 private:
 	void remove_dead_and_add_pending_agents();

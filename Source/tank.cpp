@@ -85,6 +85,19 @@ void Tank::draw(Level* level)
 	DrawRectangle(healthBarPosX, healthBarPosY, energy / 2, healtBarHeight, RED);
 }
 
+void Tank::heal(float p_health)
+{
+	float health = energy + p_health;
+	if (health < maxEnergy)
+	{
+		energy = health;
+	}
+	else if (health >= maxEnergy)
+	{
+		energy = maxEnergy;
+	}
+}
+
 void Tank::damage(float p_damage)
 {
 	energy = energy - p_damage;
@@ -93,6 +106,11 @@ void Tank::damage(float p_damage)
 float Tank::getEnergy()
 {
 	return energy;
+}
+
+float Tank::getMaxEnergy()
+{
+	return maxEnergy;
 }
 
 float Tank::getScale()

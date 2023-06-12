@@ -15,7 +15,7 @@ public:
 
 	enum Target
 	{
-		Tank, Healer, Player, Count
+		Tank, Healer, Player, Monster, Count
 	} target;
 
 

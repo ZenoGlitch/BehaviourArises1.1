@@ -17,9 +17,11 @@ public:
 
 	void draw(Level *level) override;
 
+	void heal(float p_health);
 	void damage(float p_damage);
 
 	float getEnergy() override;
+	float getMaxEnergy();
 	float getScale();
 
 	Vector2 getClosestMonsterPos(Level *level);

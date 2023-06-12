@@ -13,26 +13,26 @@ public:
 	void decide() override;
 	void act(Level* level) override;
 
+	void update(Level* level);
+
 	void draw(Level* level) override;
+
 
 	float getEnergy() override;
 	float getMaxEnergy();
 
+	void damage(float p_damage);
+
+	void shoot();
+
+	bool drawHealCircle = false;
+
 private:
 
 	Texture healerTex;
-	float angle;
+
 
 	const float maxEnergy = 75;
 	float energy = maxEnergy;
-
-
-	// Behaviour tree stuff
-	BehaviourTree bT;
-	BehaviourTree::Selector selector[2];
-
-	Action checkHealth = Action("checkHealth", 100);
-
-	void createBehaviourTree();
 
 };

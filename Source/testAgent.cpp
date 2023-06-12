@@ -9,6 +9,7 @@ void TestAgent::initialize(Level *level)
 {
 	Vector2 pos = { (float)(GetScreenWidth() / 2), (float)(GetScreenHeight() / 2)};
 	setPosition(pos);
+	setMoveSpeed(200);
 	playerTex = LoadTexture("Assets/player.png");
 	swordTex = LoadTexture("Assets/sword.png");
 	level->pending_agents.push_back(this);
@@ -75,6 +76,19 @@ void TestAgent::draw(Level* level)
 	DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (int)(maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
 	DrawRectangle(healthBarPosX, healthBarPosY, (int)(energy / 2), healtBarHeight, RED);
 
+}
+
+void TestAgent::heal(float p_health)
+{
+	float health = energy + p_health;
+	if (health < maxEnergy)
+	{
+		energy = health;
+	}
+	else if (health >= maxEnergy)
+	{
+		energy = maxEnergy;
+	}
 }
 
 void TestAgent::damage(float p_damage)

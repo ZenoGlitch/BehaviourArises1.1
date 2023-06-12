@@ -195,6 +195,86 @@ bool Action::run(Level *level, Agent* agent)
 	
 
 	// HEALER BT ACTIONS
+	if (actionId == level->healer_runAway_id)
+	{
+		//Vector2 healerPos = level->healer.getPosition();
+		Vector2 tankPos = level->tank.getPosition();
+		level->moveAgentTowardsOtherAgent(level->healer, tankPos);
+		return true;
+	}
+
+	if (actionId == level->healer_moveToLowestHealthAlly_id)
+	{
+		Vector2 targetPos = level->healer.getTargetPos();
+		level->moveAgentTowardsOtherAgent(level->healer, targetPos);
+		return true;
+	}
+
+	if (actionId == level->healer_healTarget_id)
+	{
+		float healAmount = 20;
+		level->healingCooldown -= GetFrameTime();
+		level->healer.drawHealCircle = true;
+		if (level->healer.target == Agent::Target::Tank && level->healingCooldown <= 0)
+		{
+			level->healer.drawHealCircle = true;
+			level->tank.heal(healAmount);
+			level->healingCooldown = 2;
+			return true;
+		}
+		//else
+		//{
+		//	level->healer.drawHealCircle = false;
+		//}
+
+		if (level->healer.target == Agent::Target::Player && level->healingCooldown <= 0)
+		{
+			level->healer.drawHealCircle = true;
+			level->player.heal(healAmount);
+			level->healingCooldown = 2;
+			return true;
+		}
+		//else
+		//{
+		//	level->healer.drawHealCircle = false;
+		//}
+
+		//level->healer.drawHealCircle = false;
+
+		return true;
+	}
+
+
+	if (actionId == level->healer_moveToMonster_id)
+	{
+		//Vector2 healerPos = level->healer.getPosition();
+		//Vector2 monsterPos;
+		//float lowestDistance = 100000000;
+		//for (auto& monster : level->monsterAgents)
+		//{
+		//	monsterPos = monster.getPosition();
+		//	float distance = Vector2Distance(healerPos, monsterPos );
+		//	if (distance < lowestDistance)
+		//	{
+		//		lowestDistance = distance;
+		//	}
+		//}
+
+		Vector2 monsterPos = level->getClosestMonsterPos(&level->healer);
+		level->moveAgentTowardsOtherAgent(level->healer, monsterPos);
+
+		return true;
+	}
+
+	if (actionId == level->healer_attack_id)
+	{
+		//printf("healer should be attacking\n");
+		return true;
+	}
+
+
+
+
 
 	// MONSTER BT ACTIONS
 
@@ -250,6 +330,7 @@ bool Action::run(Level *level, Agent* agent)
 
 	if (/*agent != nullptr &&*/ agent->type == Agent::type_monster && agent->inAttackRange)
 	{
+		float monsterAttackDamage = 10;
 		if (actionId == level->monster_attack_id)
 		{
 			if (agent->attackCooldown <= 0.0f)
@@ -257,16 +338,17 @@ bool Action::run(Level *level, Agent* agent)
 				if (agent->target == agent->Healer)
 				{
 					float healerHealth = level->healer.getEnergy();
+					level->healer.damage(monsterAttackDamage);
 					agent->attackCooldown = agent->maxAttackCooldown;
 				}
 				if (agent->target == agent->Tank)
 				{
-					level->tank.damage(5);
+					level->tank.damage(monsterAttackDamage);
 					agent->attackCooldown = agent->maxAttackCooldown;
 				}
 				if (agent->target == agent->Player)
 				{
-					level->player.damage(5);
+					level->player.damage(monsterAttackDamage);
 					agent->attackCooldown = agent->maxAttackCooldown;
 				}
 
