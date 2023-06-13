@@ -31,10 +31,10 @@ private:
 	const float size = 25;
 	const float maxEnergy = 100;
 	float energy = maxEnergy;
-	Texture playerTex;
+	//Texture playerTex;
 
 	// Sword
-	Texture swordTex;
+	//Texture swordTex;
 
 	float angle;
 

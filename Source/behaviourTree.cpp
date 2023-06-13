@@ -115,9 +115,10 @@ BehaviourTree::DecoratorAction::DecoratorAction(int p_actionId)
 
 bool BehaviourTree::DecoratorAction::run(Level* level, Agent* agent)
 {
-	if (actionId == level->tank_moveToLowestHealthAlly_Id)
+	if (actionId == level->tank_moveToLowestHealthAlly_id)
 	{
-		if (condition) // healer has lowest health
+
+		if (level->tank_moveToLowestHealthAlly.condition) // healer has lowest health
 		{
 			level->moveAgentTowardsOtherAgent(level->tank, level->healer.getPosition());
 			return true;
@@ -172,24 +173,41 @@ bool Action::run(Level *level, Agent* agent)
 
 	// TANK BT ACTIONS
 
-	if (actionId == level->tank_moveToPlayer_Id)
-	{
-		Vector2 playerPos = level->player.getPosition();
-		level->moveAgentTowardsOtherAgent(level->tank, playerPos);
-		return true;
-	}
-
-	if (actionId == level->tank_moveToHealer_Id)
+	if (actionId == level->tank_moveToHealer_id)
 	{
 		Vector2 healerPos = level->healer.getPosition();
 		level->moveAgentTowardsOtherAgent(level->tank, healerPos);
 		return true;
 	}
 
-	if (actionId == level->tank_moveToMonster_Id)
+	if (actionId == level->tank_moveToMonster_id)
 	{
 		Vector2 monsterPos = level->tank.getClosestMonsterPos(level);
 		level->moveAgentTowardsOtherAgent(level->tank, monsterPos);
+		return true;
+	}
+
+	if (actionId == level->tank_attack_id)
+	{
+		level->tank.attackCooldown -= GetFrameTime();
+		if (level->tank.attackCooldown <= 0.0f)
+		{
+			for (auto& monster : level->monsterAgents)
+			{
+				Vector2 monsterPos = monster.getPosition();
+				Vector2 tankPos = level->tank.getPosition();
+				float distanceToMonster = Vector2Distance(tankPos, monsterPos);
+				if (distanceToMonster <= 150)
+				{
+					monster.damage(30);
+
+					//monster.recieveKnockback = true;
+
+					level->tank.attackCooldown = 3.5f;
+
+				}
+			}
+		}
 		return true;
 	}
 	
@@ -197,6 +215,9 @@ bool Action::run(Level *level, Agent* agent)
 	// HEALER BT ACTIONS
 	if (actionId == level->healer_runAway_id)
 	{
+		level->healer.drawHealCircle = false;
+		level->healer.projectile.active = false;
+		level->healer.projectile.positionsSet = false;
 		//Vector2 healerPos = level->healer.getPosition();
 		Vector2 tankPos = level->tank.getPosition();
 		level->moveAgentTowardsOtherAgent(level->healer, tankPos);
@@ -205,6 +226,9 @@ bool Action::run(Level *level, Agent* agent)
 
 	if (actionId == level->healer_moveToLowestHealthAlly_id)
 	{
+		level->healer.drawHealCircle = false;
+		level->healer.projectile.active = false;
+		level->healer.projectile.positionsSet = false;
 		Vector2 targetPos = level->healer.getTargetPos();
 		level->moveAgentTowardsOtherAgent(level->healer, targetPos);
 		return true;
@@ -212,7 +236,10 @@ bool Action::run(Level *level, Agent* agent)
 
 	if (actionId == level->healer_healTarget_id)
 	{
-		float healAmount = 20;
+		level->healer.projectile.active = false;
+		level->healer.projectile.positionsSet = false;
+
+		float healAmount = 25;
 		level->healingCooldown -= GetFrameTime();
 		level->healer.drawHealCircle = true;
 		if (level->healer.target == Agent::Target::Tank && level->healingCooldown <= 0)
@@ -247,6 +274,10 @@ bool Action::run(Level *level, Agent* agent)
 
 	if (actionId == level->healer_moveToMonster_id)
 	{
+		level->healer.projectile.active = false;
+		level->healer.projectile.positionsSet = false;
+		level->healer.drawHealCircle = false;
+
 		//Vector2 healerPos = level->healer.getPosition();
 		//Vector2 monsterPos;
 		//float lowestDistance = 100000000;
@@ -268,7 +299,7 @@ bool Action::run(Level *level, Agent* agent)
 
 	if (actionId == level->healer_attack_id)
 	{
-
+		level->healer.drawHealCircle = false;
 		level->healer.shoot(level);
 		//printf("healer should be attacking\n");
 		return true;
@@ -279,6 +310,166 @@ bool Action::run(Level *level, Agent* agent)
 
 
 	// MONSTER BT ACTIONS
+
+	//for (auto& monster : level->monsterAgents)
+	//{
+	//	if (agent->type == Agent::type_monster && actionId == level->monster_getKnockedBack_id)
+	//	{
+	//		Vector2 monsterPos = monster.getPosition();
+	//		Vector2 tankPos = level->tank.getPosition();
+	//		if (monsterPos.x < tankPos.x && monsterPos.y < tankPos.y)
+	//		{
+	//			Vector2 landingPos = { monsterPos.x - 200, monsterPos.y - 200 };
+	//			Vector2 travelPos = Vector2Lerp(monsterPos, landingPos, 0.2);
+	//			monster.setPosition(travelPos);
+	//
+	//		}
+	//		if (monsterPos.x > tankPos.x && monsterPos.y > tankPos.y)
+	//		{
+	//			Vector2 landingPos = { monsterPos.x + 200, monsterPos.y + 200 };
+	//			Vector2 travelPos = Vector2Lerp(monsterPos, landingPos, 0.2);
+	//			monster.setPosition(travelPos);
+	//		}
+	//		if (monsterPos.x < tankPos.x && monsterPos.y > tankPos.y)
+	//		{
+	//			Vector2 landingPos = { monsterPos.x - 200, monsterPos.y + 200 };
+	//			Vector2 travelPos = Vector2Lerp(monsterPos, landingPos, 0.2);
+	//			monster.setPosition(travelPos);
+	//		}
+	//		if (monsterPos.x > tankPos.x && monsterPos.y < tankPos.y)
+	//		{
+	//			Vector2 landingPos = { monsterPos.x + 200, monsterPos.y - 200 };
+	//			Vector2 travelPos = Vector2Lerp(monsterPos, landingPos, 0.2);
+	//			monster.setPosition(travelPos);
+	//		}
+	//	}
+	//		return true;
+	//}
+
+	//for (auto &monster : level->monsterAgents)
+	//{
+	//	if (actionId == level->monster_getKnockedBack_id)
+	//	{
+	//		Vector2 landingPos = {100000, 100000};
+	//		Vector2 monsterPos = monster.getPosition();
+	//		Vector2 tankPos = level->tank.getPosition();
+	//		float distanceToTank = Vector2Distance(monsterPos, tankPos);
+	//		if (distanceToTank <= 150)
+	//		{
+	//			if (!monster.isPositionsSet)
+	//			{
+	//				if (monsterPos.x < tankPos.x)
+	//				{
+	//					landingPos.x = monsterPos.x - 200;
+	//				}
+	//				if (monsterPos.x > tankPos.x)
+	//				{
+	//					landingPos.x = monsterPos.x + 200;
+	//				}
+	//				if (monsterPos.y < tankPos.y)
+	//				{
+	//					landingPos.y = monsterPos.y - 200;
+	//				}
+	//				if (monsterPos.y > tankPos.y)
+	//				{
+	//					landingPos.y = monsterPos.y + 200;
+	//				}
+	//				//monster.setTargetPos(landingPos);
+	//				monster.isPositionsSet = true;
+	//			}
+	//		}
+	//		if (landingPos.x <= 0)
+	//		{
+	//			landingPos.x = 0;
+	//		}
+	//		if (landingPos.y <= 0)
+	//		{
+	//			landingPos.y = 0;
+	//		}
+	//		if (landingPos.x >= GetScreenWidth())
+	//		{
+	//			landingPos.x = GetScreenWidth();
+	//		}
+	//		if (landingPos.y >= GetScreenHeight())
+	//		{
+	//			landingPos.y = GetScreenHeight();
+	//		}
+	//		Vector2 flightPos = Vector2Lerp(monsterPos, landingPos, 0.03);
+	//		monster.setPosition(flightPos);
+	//		
+	//	}
+	//}
+
+	for (auto& monster : level->monsterAgents)
+	{
+		if (actionId == level->monster_getKnockedBack_id)
+		{
+			Vector2 landingPos = { 100000, 100000 };
+			Vector2 monsterPos = agent->getPosition();
+			Vector2 tankPos = level->tank.getPosition();
+			float distanceToTank = Vector2Distance(monsterPos, tankPos);
+			if (distanceToTank <= 150)
+			{
+				float launchDistance = 300;
+				if (!monster.isPositionsSet)
+				{
+					if (monsterPos.x < tankPos.x)
+					{
+						landingPos.x = monsterPos.x - launchDistance;
+					}
+					if (monsterPos.x > tankPos.x)
+					{
+						landingPos.x = monsterPos.x + launchDistance;
+					}
+					if (monsterPos.y < tankPos.y)
+					{
+						landingPos.y = monsterPos.y - launchDistance;
+					}
+					if (monsterPos.y > tankPos.y)
+					{
+						landingPos.y = monsterPos.y + launchDistance;
+					}
+
+					//monster.setTargetPos(landingPos);
+					monster.isPositionsSet = true;
+				}
+
+				if (landingPos.x <= 0)
+				{
+					landingPos.x = 0;
+				}
+				if (landingPos.y <= 0)
+				{
+					landingPos.y = 0;
+				}
+				if (landingPos.x >= GetScreenWidth())
+				{
+					landingPos.x = GetScreenWidth();
+				}
+				if (landingPos.y >= GetScreenHeight())
+				{
+					landingPos.y = GetScreenHeight();
+				}
+
+				Vector2 flightPos = Vector2Lerp(monsterPos, landingPos, 0.01);
+				agent->setPosition(flightPos);
+				
+				Vector2 currentPos = agent->getPosition();
+				if (   currentPos.x >= landingPos.x - 10
+					&& currentPos.x <= landingPos.x + 10
+					&& currentPos.y >= landingPos.y - 10
+					&& currentPos.y <= landingPos.y + 10 )
+				{
+					monster.isPositionsSet = false;
+					monster.recieveKnockback = false;
+					level->monster_attackedByTank.condition = false;
+				}
+			}
+
+
+			return true;
+		}
+	}
 
 	for (auto& monsters : level->monsterAgents)
 	{
@@ -339,7 +530,6 @@ bool Action::run(Level *level, Agent* agent)
 			{
 				if (agent->target == agent->Healer)
 				{
-					float healerHealth = level->healer.getEnergy();
 					level->healer.damage(monsterAttackDamage);
 					agent->attackCooldown = agent->maxAttackCooldown;
 				}

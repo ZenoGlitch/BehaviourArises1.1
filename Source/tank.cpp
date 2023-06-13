@@ -5,7 +5,7 @@
 void Tank::initialize(Level *level)
 {
 	setType(type_tank);
-	tankTex = LoadTexture("Assets/tank.png");
+	//tankTex = LoadTexture("Assets/tank.png");
 	Vector2 spawnPos = { (float)(GetScreenWidth() / 2) + 100, (float)(GetScreenHeight() / 2)};
 	setPosition(spawnPos);
 	setMoveSpeed(100.0f);
@@ -26,6 +26,7 @@ void Tank::act(Level* level) // deprecated
 
 void Tank::update(Level* level)
 {
+	Vector2 pos = getPosition();
 
 		if (energy <= maxEnergy / 4)
 		{
@@ -47,14 +48,39 @@ void Tank::update(Level* level)
 		float playerMaxHealth = level->healer.getMaxEnergy();
 		float playerHealthPercent = playerHealth / playerMaxHealth;
 
+		if (   healerHealth <= (healerMaxHealth / 4) * 3
+			|| playerHealth <= (playerMaxHealth / 4) * 3 )
+		{
+			level->tank_checkAlliesHealth.condition = true;
+		}
+		else
+		{
+			level->tank_checkAlliesHealth.condition = false;
+		}
 
 		if (healerHealthPercent < playerHealthPercent)
 		{
+			target = Agent::Target::Healer;
 			level->tank_moveToLowestHealthAlly.condition = true;
 		}
 		else
 		{
+			target = Agent::Target::Player;
 			level->tank_moveToLowestHealthAlly.condition = false;
+		}
+
+		Vector2 closestMonsterPos = level->getClosestMonsterPos(this);
+		float distanceToClosestMonster = Vector2Distance(pos, closestMonsterPos);
+
+		if (distanceToClosestMonster <= 100)
+		{
+			level->tank_notInAttackRange.condition = false;
+			level->tank_inAttackRange.condition = true;
+		}
+		else
+		{
+			level->tank_inAttackRange.condition = false;
+			level->tank_notInAttackRange.condition = true;
 		}
 	
 
@@ -66,12 +92,12 @@ void Tank::draw(Level* level)
 	Vector2 pos = getPosition();
 	//DrawTexture(tankTex, pos.x, pos.y, WHITE);
 
-	Vector2 origin = { tankTex.width, tankTex.height };
+	Vector2 origin = { level->tankTex.width, level->tankTex.height };
 	//DrawTextureEx(tankTex, pos, rotation, scale, WHITE);
-	Rectangle rectSrc = { 0, 0, tankTex.width, tankTex.height };
-	Rectangle rectDst = { pos.x, pos.y, tankTex.width * scale, tankTex.height * scale };
+	Rectangle rectSrc = { 0, 0, level->tankTex.width, level->tankTex.height };
+	Rectangle rectDst = { pos.x, pos.y, level->tankTex.width * scale, level->tankTex.height * scale };
 
-	DrawTexturePro(tankTex, rectSrc, rectDst, origin, angle, WHITE);
+	DrawTexturePro(level->tankTex, rectSrc, rectDst, origin, angle, WHITE);
 
 	// Draw health bar
 	const float borderSize = 4;

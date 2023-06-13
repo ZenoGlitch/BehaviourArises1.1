@@ -24,28 +24,34 @@ public:
 	Tank tank;
 	Healer healer;
 
+	Texture playerTex;
+	Texture swordTex;
+	Texture monsterTex;
+	Texture tankTex;
+	Texture healerTex;
+	Texture projectileTex;
+
 
 	// Tank BT stuff
 	enum TankActionId
 	{
-		//tank_checkOwnHealthId,
-		//tank_checkAllyHealthId,
-		tank_moveToHealer_Id,
-		tank_moveToPlayer_Id,
-		tank_moveToLowestHealthAlly_Id,
-		tank_moveToMonster_Id,
-		tank_attackId,
+		tank_moveToHealer_id,
+		tank_moveToLowestHealthAlly_id,
+		tank_moveToMonster_id,
+		tank_attack_id,
 		tank_count
 	};
 
-	BehaviourTree::Sequence tank_sequence[2];
+	BehaviourTree::Sequence tank_sequence[4];
 	BehaviourTree::Selector tank_selector[2];
 	BehaviourTree::DecoratorConditional tank_checkOwnHealth;
 	BehaviourTree::DecoratorConditional tank_checkAlliesHealth;
-	BehaviourTree::DecoratorAction tank_moveToLowestHealthAlly = BehaviourTree::DecoratorAction(tank_moveToLowestHealthAlly_Id);
-	Action tank_moveTowardsHealer = Action(tank_moveToHealer_Id);
-
-	Action tank_moveTowardsMonster = Action(tank_moveToMonster_Id);
+	BehaviourTree::DecoratorAction tank_moveToLowestHealthAlly = BehaviourTree::DecoratorAction(tank_moveToLowestHealthAlly_id);
+	Action tank_moveTowardsHealer = Action(tank_moveToHealer_id);
+	BehaviourTree::DecoratorConditional tank_notInAttackRange;
+	BehaviourTree::DecoratorConditional tank_inAttackRange;
+	Action tank_moveTowardsMonster = Action(tank_moveToMonster_id);
+	Action tank_attack = Action(tank_attack_id);
 
 	//Action moveTowardsPlayer = Action(tank_moveToPlayer_Id);
 
@@ -90,13 +96,16 @@ public:
 	enum MonsterActionId
 	{
 		monster_checkOwnHealth_id = healer_count + 1,
+		monster_getKnockedBack_id,
 		monster_runAway_id,
 		monster_moveToClosestTarget_id,
 		monster_attack_id,
 	};
 
-	BehaviourTree::Sequence monster_sequence[3];
+	BehaviourTree::Sequence monster_sequence[4];
 	BehaviourTree::Selector monster_selector;
+	BehaviourTree::DecoratorConditional monster_attackedByTank;
+	Action monster_getKnockedBack = Action(monster_getKnockedBack_id);
 	BehaviourTree::DecoratorConditional monster_checkOwnHealth;
 	Action monster_runAway = Action(monster_runAway_id);
 	BehaviourTree::DecoratorConditional monster_notInAttackRange;
@@ -146,6 +155,8 @@ public:
 
 	void initialize();
 	void initialize_behaviour_tree();
+
+	void loadTextures();
 
 	void input();
 

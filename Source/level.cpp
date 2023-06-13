@@ -2,7 +2,7 @@
 
 void Level::initialize()
 {
-	background = LoadTexture("Assets/background.png");
+	loadTextures();
 	player.initialize(this);
 	//monster.initialize(/*this*/);
 	tank.initialize(this);
@@ -25,12 +25,20 @@ void Level::initialize_behaviour_tree()
 	tank_selector[0].addChild(&tank_sequence[0]);
 	tank_sequence[0].addChild(&tank_checkOwnHealth);
 	tank_sequence[0].addChild(&tank_moveTowardsHealer);
+
 	tank_selector[0].addChild(&tank_sequence[1]);
 	tank_sequence[1].addChild(&tank_checkAlliesHealth);
 	tank_sequence[1].addChild(&tank_moveToLowestHealthAlly);
 	//tank_sequence[1].addChild(&tank_selector[1]);
+	tank_selector[0].addChild(&tank_selector[1]);
+	tank_selector[1].addChild(&tank_sequence[2]);
+	tank_sequence[2].addChild(&tank_notInAttackRange);
+	tank_sequence[2].addChild(&tank_moveTowardsMonster);
+	tank_selector[1].addChild(&tank_sequence[3]);
+	tank_sequence[3].addChild(&tank_inAttackRange);
+	tank_sequence[3].addChild(&tank_attack);
 
-	tank_selector[0].addChild(&tank_moveTowardsMonster);
+	//tank_selector[0].addChild(&tank_moveTowardsMonster);
 
 	// Healer BT setup
 	healer_selector[0].addChild(&healer_sequence[0]); // first branch
@@ -56,16 +64,30 @@ void Level::initialize_behaviour_tree()
 
 	// Monster BT setup
 	monster_selector.addChild(&monster_sequence[0]); // first branch
-	monster_sequence[0].addChild(&monster_checkOwnHealth);
-	monster_sequence[0].addChild(&monster_runAway);
-	monster_selector.addChild(&monster_sequence[1]); // second branch
-	monster_sequence[1].addChild(&monster_notInAttackRange);
-	monster_sequence[1].addChild(&monster_moveToClosestTarget);
-	monster_selector.addChild(&monster_sequence[2]); // third branch
-	monster_sequence[2].addChild(&monster_inAttackRange);
-	monster_sequence[2].addChild(&monster_attack);
+	monster_sequence[0].addChild(&monster_attackedByTank);
+	monster_sequence[0].addChild(&monster_getKnockedBack);
+	monster_selector.addChild(&monster_sequence[1]);
+	monster_sequence[1].addChild(&monster_checkOwnHealth);
+	monster_sequence[1].addChild(&monster_runAway);
+	monster_selector.addChild(&monster_sequence[2]); // second branch
+	monster_sequence[2].addChild(&monster_notInAttackRange);
+	monster_sequence[2].addChild(&monster_moveToClosestTarget);
+	monster_selector.addChild(&monster_sequence[3]); // third branch
+	monster_sequence[3].addChild(&monster_inAttackRange);
+	monster_sequence[3].addChild(&monster_attack);
 
 
+}
+
+void Level::loadTextures()
+{
+	background = LoadTexture("Assets/background.png");
+	playerTex  = LoadTexture("Assets/player.png");
+	swordTex   = LoadTexture("Assets/sword.png");
+	monsterTex = LoadTexture("Assets/monster1.png");
+	tankTex    = LoadTexture("Assets/tank.png");
+	healerTex  = LoadTexture("Assets/healer.png");
+	projectileTex = LoadTexture("Assets/projectile.png");
 }
 
 void Level::input()
@@ -180,35 +202,17 @@ void Level::reset()
 
 void Level::update()
 {
+
 	remove_dead_and_add_pending_agents();
-
-	//for (auto& monsters : monsterAgents)
-	//{
-	//	monsters.sense(this);
-	//}
-
-	//for (auto& monsters : monsterAgents)
-	//{
-	//	monsters.decide();
-	//}
-
-	//monster.sense(this);
-	//monster.decide();
 
 	player.act(this);
 	tank.update(this);
 	healer.update(this);
-	//tBt.run(this);
-	//monster.act(this);
-	//monster.update(this);
-
 
 	damageMonstersWithPlayersSword();
 
-
 	for (auto& monsters : monsterAgents)
 	{
-		/*monsters.act(this);*/
 		monsters.update(this);
 	}
 
@@ -220,13 +224,6 @@ void Level::update()
 			newMonster->initialize();
 			pending_agents.push_back(newMonster);
 		}
-		//Monster* monster1 = spawnMonster(Monster());
-		//Monster* monster2 = spawnMonster(Monster());
-		//monster1->initialize();
-		//monster2->initialize();
-		//pending_agents.push_back(monster1);
-		//pending_agents.push_back(monster2);
-
 	}
 
 
@@ -238,16 +235,11 @@ void Level::update()
 	//	agent->act(this);
 	//}
 
-
-	printf("monster agents: %i \n", (int)monsterAgents.size());
 }
 
 void Level::draw()
 {
 	DrawTexture(background,0 ,0, WHITE);
-	//tank.draw(this);
-	//tA.draw(this);
-	//monster.draw(this);
 
 	for(auto& agent : all_agents)
 	{
@@ -268,7 +260,7 @@ void Level::damageMonstersWithPlayersSword()
 				 player.swordTipPos.y <= monsters.getPosition().y + monsters.size &&
 			     player.swordTipPos.y >= monsters.getPosition().y - monsters.size )
 			{
-				monsters.damage(5);
+				monsters.damage(15);
 				damageTaken = true;
 			}
 		}
@@ -282,6 +274,23 @@ void Level::damageMonstersWithPlayersSword()
 	{
 		damageCooldown = 2;
 		damageTaken = false;
+	}
+
+	for (auto& monster : monsterAgents)
+	{
+		Vector2 healer_pPos = healer.projectile.projectilePos;
+		Vector2 monsterPos = monster.getPosition();
+
+		if (  healer_pPos.x > monsterPos.x - (monster.size + 5) && 
+			  healer_pPos.x < monsterPos.x + (monster.size + 5) &&
+			  healer_pPos.y > monsterPos.y - (monster.size + 5) &&
+			  healer_pPos.y < monsterPos.y + (monster.size + 5) )
+		{
+			monster.damage(10);
+			healer.projectile.active = false;
+			healer.projectile.positionsSet = false;
+			healer.projectile.coolDown = 1;
+		}
 	}
 }
 

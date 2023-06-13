@@ -11,7 +11,7 @@ void Monster::initialize(/*Level *level*/)
 {
 	setType(type_monster);
 	setPosition(randSpawnPoint());
-	monsterTex = LoadTexture("Assets/monster1.png");
+	//monsterTex = LoadTexture("Assets/monster1.png");
 	setMoveSpeed(75);
 	setMaxAttackCooldown(1.5f);
 	setAttackCooldown(maxAttackCooldown);
@@ -115,6 +115,12 @@ void Monster::update(Level *level)
 		level->monster_checkOwnHealth.setCondition(false);
 	}
 
+	if (recieveKnockback)
+	{
+		level->monster_attackedByTank.condition = true;
+		recieveKnockback = false;
+	}
+
 
 	findClosestTarget(level);
 	
@@ -133,6 +139,7 @@ void Monster::update(Level *level)
 	}
 
 
+
 	level->monster_selector.run(level, this);
 }
 
@@ -148,10 +155,10 @@ void Monster::draw(Level *level)
 
 
 	float scale = 2;
-	Rectangle rectSrc = { 0, 0, (float)monsterTex.width, (float)monsterTex.height };
-	Rectangle rectDst = { pos.x, pos.y, monsterTex.width * scale, monsterTex.height * scale };
-	Vector2 origin = { (monsterTex.width / 2) * scale, (monsterTex.height / 2) * scale };
-	DrawTexturePro(monsterTex, rectSrc, rectDst, origin, angle + 30, WHITE);
+	Rectangle rectSrc = { 0, 0, (float)level->monsterTex.width, (float)level->monsterTex.height };
+	Rectangle rectDst = { pos.x, pos.y, level->monsterTex.width * scale, level->monsterTex.height * scale };
+	Vector2 origin = { (level->monsterTex.width / 2) * scale, (level->monsterTex.height / 2) * scale };
+	DrawTexturePro(level->monsterTex, rectSrc, rectDst, origin, angle + 30, WHITE);
 
 
 	// Draw health bar

@@ -10,8 +10,8 @@ void TestAgent::initialize(Level *level)
 	Vector2 pos = { (float)(GetScreenWidth() / 2), (float)(GetScreenHeight() / 2)};
 	setPosition(pos);
 	setMoveSpeed(200);
-	playerTex = LoadTexture("Assets/player.png");
-	swordTex = LoadTexture("Assets/sword.png");
+	//playerTex = LoadTexture("Assets/player.png");
+	//swordTex = LoadTexture("Assets/sword.png");
 	level->pending_agents.push_back(this);
 }
 
@@ -48,22 +48,22 @@ void TestAgent::draw(Level* level)
 	angle = -atan2f(diff.x, diff.y) * RAD2DEG;
 
 	// Draw sword
-	Rectangle swordRectSrc = { 0,0, (float)swordTex.width, (float)swordTex.height };
-	Rectangle SwordRectDst = { lineEndPos.x, lineEndPos.y, (float)swordTex.width, (float)swordTex.height };
-	Vector2 swordOrigin = { (float)(swordTex.width / 2), (float)swordTex.height };
-	DrawTexturePro(swordTex, swordRectSrc, SwordRectDst, swordOrigin, angle, WHITE);
+	Rectangle swordRectSrc = { 0,0, (float)level->swordTex.width, (float)level->swordTex.height };
+	Rectangle SwordRectDst = { lineEndPos.x, lineEndPos.y, (float)level->swordTex.width, (float)level->swordTex.height };
+	Vector2 swordOrigin = { (float)(level->swordTex.width / 2), (float)level->swordTex.height };
+	DrawTexturePro(level->swordTex, swordRectSrc, SwordRectDst, swordOrigin, angle, WHITE);
 	swordTipPos = { lineEndPos.x + scaled.x * 2, lineEndPos.y + scaled.y * 2 };
 
 	//DrawCircle(swordTipPos.x, swordTipPos.y, 10, BLUE);
 
 	// Draw player
 	const float scale = 1.5f;
-	Rectangle playerRectSrc = { 0, 0, (float)playerTex.width, (float)playerTex.height };
-	Rectangle playerRectDst = { pos.x, pos.y, (float)playerTex.width * scale, (float)playerTex.height * scale};
-	const float pOriginX = (float)((playerTex.width / 2) * scale);
-	const float pOriginY = (float)((playerTex.height / 2) * scale);
+	Rectangle playerRectSrc = { 0, 0, (float)level->playerTex.width, (float)level->playerTex.height };
+	Rectangle playerRectDst = { pos.x, pos.y, (float)level->playerTex.width * scale, (float)level->playerTex.height * scale};
+	const float pOriginX = (float)((level->playerTex.width / 2) * scale);
+	const float pOriginY = (float)((level->playerTex.height / 2) * scale);
 	Vector2 playerOrigin = { pOriginX, pOriginY };
-	DrawTexturePro(playerTex, playerRectSrc, playerRectDst, playerOrigin, angle, WHITE );
+	DrawTexturePro(level->playerTex, playerRectSrc, playerRectDst, playerOrigin, angle, WHITE );
 
 
 	// Draw health bar

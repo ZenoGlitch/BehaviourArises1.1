@@ -49,7 +49,7 @@ private:
 
 	const float scale = 1.7f;
 	float rotation = 0;
-	Texture tankTex;
+	//Texture tankTex;
 
 
 

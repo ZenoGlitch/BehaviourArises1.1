@@ -30,10 +30,13 @@ public:
 
 	const float size = 20;
 
+	bool recieveKnockback = false;
+	bool isPositionsSet = false;
+
 private:
 
 
-	Texture monsterTex;
+	//Texture monsterTex;
 
 	const float maxEnergy = 75;
 	float energy = maxEnergy;
