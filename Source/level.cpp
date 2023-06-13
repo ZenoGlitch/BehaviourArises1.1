@@ -4,7 +4,6 @@ void Level::initialize()
 {
 	loadTextures();
 	player.initialize(this);
-	//monster.initialize(/*this*/);
 	tank.initialize(this);
 	healer.initialize(this);
 	initialize_behaviour_tree();
@@ -22,15 +21,15 @@ void Level::initialize()
 void Level::initialize_behaviour_tree()
 {	
 	// Tank BT setup
-	tank_selector[0].addChild(&tank_sequence[0]);
+	tank_selector[0].addChild(&tank_sequence[0]); // first branch
 	tank_sequence[0].addChild(&tank_checkOwnHealth);
 	tank_sequence[0].addChild(&tank_moveTowardsHealer);
 
-	tank_selector[0].addChild(&tank_sequence[1]);
+	tank_selector[0].addChild(&tank_sequence[1]); // second branch
 	tank_sequence[1].addChild(&tank_checkAlliesHealth);
 	tank_sequence[1].addChild(&tank_moveToLowestHealthAlly);
 	//tank_sequence[1].addChild(&tank_selector[1]);
-	tank_selector[0].addChild(&tank_selector[1]);
+	tank_selector[0].addChild(&tank_selector[1]); // third branch
 	tank_selector[1].addChild(&tank_sequence[2]);
 	tank_sequence[2].addChild(&tank_notInAttackRange);
 	tank_sequence[2].addChild(&tank_moveTowardsMonster);
@@ -38,7 +37,6 @@ void Level::initialize_behaviour_tree()
 	tank_sequence[3].addChild(&tank_inAttackRange);
 	tank_sequence[3].addChild(&tank_attack);
 
-	//tank_selector[0].addChild(&tank_moveTowardsMonster);
 
 	// Healer BT setup
 	healer_selector[0].addChild(&healer_sequence[0]); // first branch
@@ -81,12 +79,12 @@ void Level::initialize_behaviour_tree()
 
 void Level::loadTextures()
 {
-	background = LoadTexture("Assets/background.png");
-	playerTex  = LoadTexture("Assets/player.png");
-	swordTex   = LoadTexture("Assets/sword.png");
-	monsterTex = LoadTexture("Assets/monster1.png");
-	tankTex    = LoadTexture("Assets/tank.png");
-	healerTex  = LoadTexture("Assets/healer.png");
+	background    = LoadTexture("Assets/background.png");
+	playerTex     = LoadTexture("Assets/player.png");
+	swordTex      = LoadTexture("Assets/sword.png");
+	monsterTex    = LoadTexture("Assets/monster1.png");
+	tankTex       = LoadTexture("Assets/tank.png");
+	healerTex     = LoadTexture("Assets/healer.png");
 	projectileTex = LoadTexture("Assets/projectile.png");
 }
 
@@ -204,8 +202,8 @@ void Level::update()
 {
 
 	remove_dead_and_add_pending_agents();
+	updateTick ++;
 
-	player.act(this);
 	tank.update(this);
 	healer.update(this);
 
@@ -234,6 +232,11 @@ void Level::update()
 	//	agent->decide();
 	//	agent->act(this);
 	//}
+
+	if (updateTick >= 2.01)
+	{
+		updateTick = 0;
+	}
 
 }
 

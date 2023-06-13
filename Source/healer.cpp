@@ -8,7 +8,7 @@ void Healer::initialize(Level* level)
     setType(type_healer);
     Vector2 pos = { (float)((GetScreenWidth() / 2) - 80.0f), (float)(GetScreenHeight() / 2) };
     setPosition(pos);
-    setMoveSpeed(75.0f);
+    setMoveSpeed(100.0f);
     //healerTex = LoadTexture("Assets/healer.png");
     //projectile.projectileTex = LoadTexture("Assets/projectile.png");
     
@@ -29,122 +29,137 @@ void Healer::act(Level* level)
 
 void Healer::update(Level* level)
 {
-    if (energy <= maxEnergy / 2)
+    if (energy <= 0.0f)
     {
-        level->healer_checkOwnHealth.condition = true;
-    }
-    else
-    {
-        level->healer_checkOwnHealth.condition = false;
+        alive = false;
     }
 
-  
-    float tankHealth = level->tank.getEnergy();
-    float tankMaxHealth = level->tank.getMaxEnergy();
-    float tankHealthPercent = tankHealth / tankMaxHealth;
-    float playerHealth = level->player.getEnergy();
-    float playerMaxHealth = level->player.getMaxEnergy();
-    float playerHealthPercent = playerHealth / playerMaxHealth;
-
-    if (playerHealth <= (playerMaxHealth / 4) * 3 || tankHealth <= (tankMaxHealth / 4) * 3)
+    if (alive)
     {
-        if (playerHealthPercent < tankHealthPercent)
+        if (energy <= maxEnergy / 2)
         {
-            target = Agent::Target::Player;
-            targetPos = level->player.getPosition();
+            level->healer_checkOwnHealth.condition = true;
         }
         else
         {
-            target = Agent::Target::Tank;
-            targetPos = level->tank.getPosition();
+            level->healer_checkOwnHealth.condition = false;
         }
-        level->healer_checkAlliesHealth.condition = true;
-    }
-    else
-    {
-        level->healer_checkAlliesHealth.condition = false;
-        //target = Agent::Target::Monster;
-    }
 
-    Vector2 pos = getPosition();
-    Vector2 targetPos = getTargetPos();
-    float distanceToTarget = Vector2Distance(pos, targetPos);
-    if (distanceToTarget <= healRange)
-    {
-        level->healer_notInHealingRange.condition = false;
-        level->healer_inHealrange.condition = true;
-        drawHealCircle = true;
-    }
-    else
-    {
-        level->healer_inHealrange.condition = false;
-        level->healer_notInHealingRange.condition = true;
-        drawHealCircle = false;
-    }
+  
+        float tankHealth = level->tank.getEnergy();
+        float tankMaxHealth = level->tank.getMaxEnergy();
+        float tankHealthPercent = tankHealth / tankMaxHealth;
+        float playerHealth = level->player.getEnergy();
+        float playerMaxHealth = level->player.getMaxEnergy();
+        float playerHealthPercent = playerHealth / playerMaxHealth;
 
-    Vector2 monsterPos = level->getClosestMonsterPos(this);
-    float distanceToMonster = Vector2Distance(pos, monsterPos);
-    if (distanceToMonster <= attackRange)
-    {
-        inAttackRange = true;
-        level->healer_notInAttackRange.condition = false;
-        level->healer_inAttackRange.condition = true;
-    }
-    else
-    {
-        inAttackRange = false;
-        level->healer_inAttackRange.condition = false;
-        level->healer_notInAttackRange.condition = true;
-    }
+        if (playerHealth <= (playerMaxHealth / 4) * 3 || tankHealth <= (tankMaxHealth / 4) * 3)
+        {
+            if (playerHealthPercent < tankHealthPercent && level->tank.alive)
+            {
+                target = Agent::Target::Player;
+                targetPos = level->player.getPosition();
+            }
+            else if (tankHealthPercent < playerHealthPercent && level->tank.alive)
+            {
+                target = Agent::Target::Tank;
+                targetPos = level->tank.getPosition();
+            }
+            else if (!level->tank.alive)
+            {
+                target = Agent::Target::Player;
+                targetPos = level->player.getPosition();
+            }
+            level->healer_checkAlliesHealth.condition = true;
+        }
+        else
+        {
+            level->healer_checkAlliesHealth.condition = false;
+        }
+
+        Vector2 pos = getPosition();
+        Vector2 targetPos = getTargetPos();
+        float distanceToTarget = Vector2Distance(pos, targetPos);
+        if (distanceToTarget <= healRange)
+        {
+            level->healer_notInHealingRange.condition = false;
+            level->healer_inHealrange.condition = true;
+            drawHealCircle = true;
+        }
+        else
+        {
+            level->healer_inHealrange.condition = false;
+            level->healer_notInHealingRange.condition = true;
+            drawHealCircle = false;
+        }
+
+        Vector2 monsterPos = level->getClosestMonsterPos(this);
+        float distanceToMonster = Vector2Distance(pos, monsterPos);
+        if (distanceToMonster <= attackRange)
+        {
+            inAttackRange = true;
+            level->healer_notInAttackRange.condition = false;
+            level->healer_inAttackRange.condition = true;
+        }
+        else
+        {
+            inAttackRange = false;
+            level->healer_inAttackRange.condition = false;
+            level->healer_notInAttackRange.condition = true;
+        }
     
-    if (!projectile.active)
-    {
-        projectile.projectilePos = getPosition();
+        if (!projectile.active)
+        {
+            projectile.projectilePos = getPosition();
+        }
+
+        if (level->updateTick >= 2)
+        {
+            level->healer_selector[0].run(level, nullptr);
+        }
     }
-
-    //printf("pPos X: %f \n", projectile.projectilePos.x);
-    //printf("pPos Y: %f \n", projectile.projectilePos.y);
-
-    level->healer_selector[0].run(level, nullptr);
 }
 
 void Healer::draw(Level* level)
 {
-    if (drawHealCircle)
+    if (alive)
     {
-        Color healGreen = Fade(GREEN, 0.2);
-        DrawCircle(targetPos.x, targetPos.y, 150, healGreen);
-    }
+        if (drawHealCircle)
+        {
+            Color healGreen = Fade(GREEN, 0.2);
+            DrawCircle(targetPos.x, targetPos.y, 150, healGreen);
+        }
 
-    Vector2 pos = getPosition();
-    //DrawTexture(healerTex, pos.x, pos.y, WHITE);
-    const float scale = 1.5f;
-    //DrawTextureEx(healerTex, pos, angle, scale, WHITE);
-    Rectangle rectSrc = { 0, 0, (float)level->healerTex.width, (float)level->healerTex.height};
-    Rectangle rectDst = { pos.x, pos.y, (float)(level->healerTex.width * scale), (float)(level->healerTex.height * scale) };
-    Vector2 origin = { (level->healerTex.width / 2) * scale, (level->healerTex.height / 2) * scale };
+        Vector2 pos = getPosition();
+        //DrawTexture(healerTex, pos.x, pos.y, WHITE);
+        const float scale = 1.5f;
+        //DrawTextureEx(healerTex, pos, angle, scale, WHITE);
+        Rectangle rectSrc = { 0, 0, (float)level->healerTex.width, (float)level->healerTex.height};
+        Rectangle rectDst = { pos.x, pos.y, (float)(level->healerTex.width * scale), (float)(level->healerTex.height * scale) };
+        Vector2 origin = { (level->healerTex.width / 2) * scale, (level->healerTex.height / 2) * scale };
 
-    DrawTexturePro(level->healerTex, rectSrc, rectDst, origin, angle, WHITE);
+        DrawTexturePro(level->healerTex, rectSrc, rectDst, origin, angle, WHITE);
 
-    // Draw health bar
-    const int borderSize = 4;
-    const int halfBorderSize = borderSize / 2;
-    const int healtBarHeight = 10;
-    const int healthBarOffsetX = 20;
-    const int healthBarPosX = (int)pos.x - (int)origin.x + healthBarOffsetX ;
-    const int healthBarOffsetY = 20;
-    const int healthBarPosY = (int)pos.y - (int)origin.y - healthBarOffsetY;
-    DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (int)(maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
-    DrawRectangle(healthBarPosX, healthBarPosY, (int)(energy / 2), healtBarHeight, RED);
+        // Draw health bar
+        const int borderSize = 4;
+        const int halfBorderSize = borderSize / 2;
+        const int healtBarHeight = 10;
+        const int healthBarOffsetX = 20;
+        const int healthBarPosX = (int)pos.x - (int)origin.x + healthBarOffsetX ;
+        const int healthBarOffsetY = 20;
+        const int healthBarPosY = (int)pos.y - (int)origin.y - healthBarOffsetY;
+        DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (int)(maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
+        DrawRectangle(healthBarPosX, healthBarPosY, (int)(energy / 2), healtBarHeight, RED);
 
-    if (projectile.active)
-    {
-        const float projectileScale = 2;
-        Vector2 pPos = projectile.projectilePos;
-        Rectangle projectileRectSrc = { 0, 0, (float)level->projectileTex.width, (float)level->projectileTex.height };
-        Rectangle projectileRectDst = { pPos.x, pPos.y, (float)level->projectileTex.width * projectileScale, (float)level->projectileTex.height * projectileScale };
-        Vector2 projectileOrigin = { (level->projectileTex.width / 2 * projectileScale), (level->projectileTex.height / 2 * projectileScale) };
-        DrawTexturePro(level->projectileTex, projectileRectSrc, projectileRectDst, projectileOrigin, angle, WHITE);
+        if (projectile.active)
+        {
+            const float projectileScale = 2;
+            Vector2 pPos = projectile.projectilePos;
+            Rectangle projectileRectSrc = { 0, 0, (float)level->projectileTex.width, (float)level->projectileTex.height };
+            Rectangle projectileRectDst = { pPos.x, pPos.y, (float)level->projectileTex.width * projectileScale, (float)level->projectileTex.height * projectileScale };
+            Vector2 projectileOrigin = { (level->projectileTex.width / 2 * projectileScale), (level->projectileTex.height / 2 * projectileScale) };
+            DrawTexturePro(level->projectileTex, projectileRectSrc, projectileRectDst, projectileOrigin, angle, WHITE);
+        }
     }
 }
 

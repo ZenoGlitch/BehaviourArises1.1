@@ -115,7 +115,7 @@ BehaviourTree::DecoratorAction::DecoratorAction(int p_actionId)
 
 bool BehaviourTree::DecoratorAction::run(Level* level, Agent* agent)
 {
-	if (actionId == level->tank_moveToLowestHealthAlly_id)
+	if (actionId == level->tank_moveToLowestHealthAlly_id && level->healer.alive)
 	{
 
 		if (level->tank_moveToLowestHealthAlly.condition) // healer has lowest health
@@ -173,7 +173,7 @@ bool Action::run(Level *level, Agent* agent)
 
 	// TANK BT ACTIONS
 
-	if (actionId == level->tank_moveToHealer_id)
+	if (actionId == level->tank_moveToHealer_id && level->healer.alive)
 	{
 		Vector2 healerPos = level->healer.getPosition();
 		level->moveAgentTowardsOtherAgent(level->tank, healerPos);
@@ -203,7 +203,7 @@ bool Action::run(Level *level, Agent* agent)
 
 					//monster.recieveKnockback = true;
 
-					level->tank.attackCooldown = 3.5f;
+					level->tank.attackCooldown = 3.0f;
 
 				}
 			}
@@ -242,7 +242,7 @@ bool Action::run(Level *level, Agent* agent)
 		float healAmount = 25;
 		level->healingCooldown -= GetFrameTime();
 		level->healer.drawHealCircle = true;
-		if (level->healer.target == Agent::Target::Tank && level->healingCooldown <= 0)
+		if (level->healer.target == Agent::Target::Tank && level->healingCooldown <= 0 && level->tank.alive)
 		{
 			level->healer.drawHealCircle = true;
 			level->tank.heal(healAmount);
@@ -442,13 +442,13 @@ bool Action::run(Level *level, Agent* agent)
 				{
 					landingPos.y = 0;
 				}
-				if (landingPos.x >= GetScreenWidth())
+				if (landingPos.x >= (float)GetScreenWidth())
 				{
-					landingPos.x = GetScreenWidth();
+					landingPos.x = (float)GetScreenWidth();
 				}
-				if (landingPos.y >= GetScreenHeight())
+				if (landingPos.y >= (float)GetScreenHeight())
 				{
-					landingPos.y = GetScreenHeight();
+					landingPos.y = (float)GetScreenHeight();
 				}
 
 				Vector2 flightPos = Vector2Lerp(monsterPos, landingPos, 0.01);
@@ -504,7 +504,7 @@ bool Action::run(Level *level, Agent* agent)
 		}
 	}
 
-	if (agent->type == Agent::type_monster)
+	if (agent != nullptr && agent->type == Agent::type_monster)
 	{
 		if (!agent->inAttackRange)
 		{
@@ -521,7 +521,7 @@ bool Action::run(Level *level, Agent* agent)
 		}
 	}
 
-	if (/*agent != nullptr &&*/ agent->type == Agent::type_monster && agent->inAttackRange)
+	if (agent != nullptr && agent->type == Agent::type_monster && agent->inAttackRange)
 	{
 		float monsterAttackDamage = 10;
 		if (actionId == level->monster_attack_id)

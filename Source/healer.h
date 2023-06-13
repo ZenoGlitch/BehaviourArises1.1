@@ -40,11 +40,10 @@ public:
 
 	} projectile;
 
+	bool alive = true;
 
 private:
-
-	//Texture healerTex;
-
+	
 
 	const float maxEnergy = 75;
 	float energy = maxEnergy;

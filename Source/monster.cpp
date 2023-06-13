@@ -12,7 +12,7 @@ void Monster::initialize(/*Level *level*/)
 	setType(type_monster);
 	setPosition(randSpawnPoint());
 	//monsterTex = LoadTexture("Assets/monster1.png");
-	setMoveSpeed(75);
+	setMoveSpeed(100.0f);
 	setMaxAttackCooldown(1.5f);
 	setAttackCooldown(maxAttackCooldown);
 	//level->pending_agents.push_back(this);
@@ -139,8 +139,10 @@ void Monster::update(Level *level)
 	}
 
 
-
-	level->monster_selector.run(level, this);
+	if (level->updateTick >= 2)
+	{
+		level->monster_selector.run(level, this);
+	}
 }
 
 void Monster::draw(Level *level)
@@ -234,7 +236,7 @@ void Monster::findClosestTarget(Level *level)
 	float distanceToTank   = Vector2Distance(pos, level->tank.getPosition()); 
 	float distanceToHealer = Vector2Distance(pos, level->healer.getPosition()); 
 
-	if (distanceToHealer < distanceToTank && distanceToHealer < distanceToPlayer)
+	if (distanceToHealer < distanceToTank && distanceToHealer < distanceToPlayer && level->healer.alive)
 	{
 		distanceToTarget = distanceToHealer;
 		target = Healer;
@@ -244,10 +246,14 @@ void Monster::findClosestTarget(Level *level)
 		distanceToTarget = distanceToPlayer;
 		target = Player;
 	}
-	if (distanceToTank < distanceToPlayer && distanceToTank < distanceToHealer)
+	if (distanceToTank < distanceToPlayer && distanceToTank < distanceToHealer && level->tank.alive)
 	{
 		distanceToTarget = distanceToTank;
 		target = Tank;
+	}
+	if (!level->tank.alive && !level->healer.alive)
+	{
+		target = Player;
 	}
 
 	if (target == Player)
@@ -255,9 +261,14 @@ void Monster::findClosestTarget(Level *level)
 		targetPos = level->player.getPosition();
 	}
 
-	if (target == Tank)
+	if (target == Tank && level->tank.alive)
 	{
 		targetPos = level->tank.getPosition();
+	}
+
+	if (target == Healer && level->tank.alive)
+	{
+		targetPos = level->healer.getPosition();
 	}
 }
 

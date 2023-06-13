@@ -31,35 +31,24 @@ public:
 	const float moveSpeed = 100;
 	const float maxEnergy = 200;
 
-	enum State
-	{
-		runningAway,
-		defendingPlayer, 
-		defendingHealer,
-		attacking,
-		idle
-	} state = idle;
+	//enum State
+	//{
+	//	runningAway,
+	//	defendingPlayer, 
+	//	defendingHealer,
+	//	attacking,
+	//	idle
+	//} state = idle;
+
+	bool alive = true;
 
 private:
 
-	void createBehaviourTree();
 
 	float energy = maxEnergy;
 	bool lowEnergy = false;
 
 	const float scale = 1.7f;
 	float rotation = 0;
-	//Texture tankTex;
-
-
-
-	//// BehaviourTree stuff
-	//BehaviourTree bT;
-	//BehaviourTree::Selector selector[2];
-	//Action moveTowardsHealer = Action("moveTowardsHealer", 100);
-	//Action moveTowardsPlayer = Action("moveTowardsPlayer", 100);
-	//Action checkOwnHealth = Action("tankCheckOwnHealth", 100);
-
-	//BehaviourTree::DecoratorAction testaction = BehaviourTree::DecoratorAction("testing2", 100);
 
 };

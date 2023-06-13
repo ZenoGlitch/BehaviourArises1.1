@@ -125,6 +125,7 @@ public:
 	int killCounter = 0;
 	int maxMonsterCount = 2;
 
+	float updateTick = 0;
 
 private:
 	int last_id = 0;
@@ -140,6 +141,7 @@ private:
 
 	float damageCooldown = 1;
 	bool damageTaken = false;
+
 
 public:
 

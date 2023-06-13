@@ -5,10 +5,9 @@
 void Tank::initialize(Level *level)
 {
 	setType(type_tank);
-	//tankTex = LoadTexture("Assets/tank.png");
 	Vector2 spawnPos = { (float)(GetScreenWidth() / 2) + 100, (float)(GetScreenHeight() / 2)};
 	setPosition(spawnPos);
-	setMoveSpeed(100.0f);
+	setMoveSpeed(150.0f);
 	level->pending_agents.push_back(this);
 }
 
@@ -28,6 +27,13 @@ void Tank::update(Level* level)
 {
 	Vector2 pos = getPosition();
 
+	if (energy <= 0.0f)
+	{
+		alive = false;
+	}
+
+	if (alive)
+	{
 		if (energy <= maxEnergy / 4)
 		{
 			lowEnergy = true;
@@ -82,33 +88,39 @@ void Tank::update(Level* level)
 			level->tank_inAttackRange.condition = false;
 			level->tank_notInAttackRange.condition = true;
 		}
-	
-
-	level->tank_selector[0].run(level, nullptr);
+		
+		if (level->updateTick >= 2)
+		{
+			level->tank_selector[0].run(level, nullptr);
+		}
+	}
 }
 
 void Tank::draw(Level* level)
 {
-	Vector2 pos = getPosition();
-	//DrawTexture(tankTex, pos.x, pos.y, WHITE);
+	if (alive)
+	{
+		Vector2 pos = getPosition();
+		//DrawTexture(tankTex, pos.x, pos.y, WHITE);
 
-	Vector2 origin = { level->tankTex.width, level->tankTex.height };
-	//DrawTextureEx(tankTex, pos, rotation, scale, WHITE);
-	Rectangle rectSrc = { 0, 0, level->tankTex.width, level->tankTex.height };
-	Rectangle rectDst = { pos.x, pos.y, level->tankTex.width * scale, level->tankTex.height * scale };
+		Vector2 origin = { level->tankTex.width, level->tankTex.height };
+		//DrawTextureEx(tankTex, pos, rotation, scale, WHITE);
+		Rectangle rectSrc = { 0, 0, level->tankTex.width, level->tankTex.height };
+		Rectangle rectDst = { pos.x, pos.y, level->tankTex.width * scale, level->tankTex.height * scale };
 
-	DrawTexturePro(level->tankTex, rectSrc, rectDst, origin, angle, WHITE);
+		DrawTexturePro(level->tankTex, rectSrc, rectDst, origin, angle, WHITE);
 
-	// Draw health bar
-	const float borderSize = 4;
-	const float halfBorderSize = borderSize / 2;
-	const float healtBarHeight = 10;
-	const float healthBarOffsetX = 10;
-	const float healthBarPosX = pos.x - origin.x - healthBarOffsetX;
-	const float healthBarOffsetY = 20;
-	const float healthBarPosY = pos.y - origin.y - healthBarOffsetY;
-	DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
-	DrawRectangle(healthBarPosX, healthBarPosY, energy / 2, healtBarHeight, RED);
+		// Draw health bar
+		const float borderSize = 4;
+		const float halfBorderSize = borderSize / 2;
+		const float healtBarHeight = 10;
+		const float healthBarOffsetX = 10;
+		const float healthBarPosX = pos.x - origin.x - healthBarOffsetX;
+		const float healthBarOffsetY = 20;
+		const float healthBarPosY = pos.y - origin.y - healthBarOffsetY;
+		DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
+		DrawRectangle(healthBarPosX, healthBarPosY, energy / 2, healtBarHeight, RED);
+	}
 }
 
 void Tank::heal(float p_health)
@@ -142,14 +154,6 @@ float Tank::getMaxEnergy()
 float Tank::getScale()
 {
 	return scale;
-}
-
-void Tank::createBehaviourTree()
-{
-	//bT.setRootChild(&selector[0]);
-	//selector[0].addChild(&checkOwnHealth);
-	//selector[0].addChild(&moveTowardsPlayer);
-
 }
 
 Vector2 Tank::getClosestMonsterPos(Level *level)

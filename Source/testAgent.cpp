@@ -10,8 +10,6 @@ void TestAgent::initialize(Level *level)
 	Vector2 pos = { (float)(GetScreenWidth() / 2), (float)(GetScreenHeight() / 2)};
 	setPosition(pos);
 	setMoveSpeed(200);
-	//playerTex = LoadTexture("Assets/player.png");
-	//swordTex = LoadTexture("Assets/sword.png");
 	level->pending_agents.push_back(this);
 }
 
