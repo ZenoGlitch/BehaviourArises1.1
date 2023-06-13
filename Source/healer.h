@@ -1,6 +1,7 @@
 #pragma once
 
 #include "agent.h"
+#include "monster.h"
 #include "behaviourTree.h"
 
 class Healer : public Agent
@@ -23,7 +24,8 @@ public:
 
 	void damage(float p_damage);
 
-	void shoot();
+	void shoot(Level *level);
+	
 
 	bool drawHealCircle = false;
 
@@ -34,5 +36,17 @@ private:
 
 	const float maxEnergy = 75;
 	float energy = maxEnergy;
+	float attackRange = 550;
+	float healRange = 350;
+
+	struct Projectile
+	{
+		bool active = false;
+		bool positionsSet = false;
+		Vector2 projectilePos;
+		Vector2 targetPos;
+		Texture projectileTex;
+
+	} projectile;
 
 };

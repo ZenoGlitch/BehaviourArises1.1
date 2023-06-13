@@ -344,10 +344,10 @@ Vector2 Level::getClosestMonsterPos(Agent *agent)
 	{
 		Vector2 pos = agent->getPosition();
 		Vector2 monsterPos = monsters.getPosition();
+		distance = Vector2Distance(pos, monsterPos);
 		if (distance < lastDistance)
 		{
 			lastDistance = distance;
-			distance = Vector2Distance(pos, monsterPos);
 			closestMonsterPos = monsterPos;
 		}
 	}

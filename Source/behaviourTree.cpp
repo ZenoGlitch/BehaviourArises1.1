@@ -268,6 +268,8 @@ bool Action::run(Level *level, Agent* agent)
 
 	if (actionId == level->healer_attack_id)
 	{
+
+		level->healer.shoot(level);
 		//printf("healer should be attacking\n");
 		return true;
 	}
