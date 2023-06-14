@@ -25,6 +25,14 @@ void TestAgent::act(Level* level)
 {
 }
 
+void TestAgent::update()
+{
+	if (energy <= 0.0f)
+	{
+		alive = false;
+	}
+}
+
 void TestAgent::draw(Level* level)
 {
 	Vector2 pos = getPosition();

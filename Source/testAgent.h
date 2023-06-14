@@ -14,6 +14,8 @@ public:
 	void decide() override;
 	void act(Level *level) override;
 
+	void update();
+
 	void draw(Level *level) override;
 
 	void heal(float p_health);
@@ -25,6 +27,8 @@ public:
 	void attack();
 
 	Vector2 swordTipPos;
+
+	bool alive = true;
 
 private:
 

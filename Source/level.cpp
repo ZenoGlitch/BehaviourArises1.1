@@ -113,10 +113,12 @@ void Level::input()
 		pos.x += GetFrameTime() * moveSpeed;
 		player.setPosition(pos);
 	}
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-	{
-		player.attack();
-	}
+	//if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+	//{
+	//	player.attack();
+	//}
+
+
 }
 
 Agent* Level::get_agent(int id)
@@ -164,18 +166,6 @@ void Level::remove_dead_and_add_pending_agents()
 	pending_agents.clear(); // Important that we clear this, otherwise we'll add the same agents every frame.
 }
 
-//Agent* Level::spawn_agent(SillyAgent agent)
-//{
-//	Agent* result = nullptr;
-//
-//	silly_agents.push_back(agent);
-//	result = &silly_agents.back();
-//	
-//	pending_agents.push_back(result); // Enqueue it so that it can be added to the level at the beginning of the next frame
-//
-//	return result;
-//}
-
 Monster* Level::spawnMonster(Monster monster)
 {
 	Monster* result = nullptr;
@@ -200,56 +190,68 @@ void Level::reset()
 
 void Level::update()
 {
-
-	remove_dead_and_add_pending_agents();
-	updateTick ++;
-
-	tank.update(this);
-	healer.update(this);
-
-	damageMonstersWithPlayersSword();
-
-	for (auto& monsters : monsterAgents)
+	if (player.alive)
 	{
-		monsters.update(this);
-	}
+		remove_dead_and_add_pending_agents();
+		updateTick ++;
 
-	if (monsterAgents.size() < maxMonsterCount)
-	{
-		for (int i = (int)monsterAgents.size(); i < maxMonsterCount; i++)
+		player.update();
+		tank.update(this);
+		healer.update(this);
+
+		damageMonstersWithPlayersSword();
+
+		for (auto& monsters : monsterAgents)
 		{
-			Monster* newMonster = spawnMonster(Monster());
-			newMonster->initialize();
-			pending_agents.push_back(newMonster);
+			monsters.update(this);
+		}
+
+		if (monsterAgents.size() < maxMonsterCount)
+		{
+			for (int i = (int)monsterAgents.size(); i < maxMonsterCount; i++)
+			{
+				Monster* newMonster = spawnMonster(Monster());
+				newMonster->initialize();
+				pending_agents.push_back(newMonster);
+			}
+		}
+
+
+		//for(auto& agent : all_agents)
+		//{
+		//	// TODO: This piece of code needs to be changed to make sure that sense, decide, act, happen at different frequencies.
+		//	agent->sense(this);
+		//	agent->decide();
+		//	agent->act(this);
+		//}
+
+		if (updateTick >= 2.01)
+		{
+			updateTick = 0;
 		}
 	}
-
-
-	//for(auto& agent : all_agents)
-	//{
-	//	// TODO: This piece of code needs to be changed to make sure that sense, decide, act, happen at different frequencies.
-	//	agent->sense(this);
-	//	agent->decide();
-	//	agent->act(this);
-	//}
-
-	if (updateTick >= 2.01)
-	{
-		updateTick = 0;
-	}
-
 }
 
 void Level::draw()
 {
-	DrawTexture(background,0 ,0, WHITE);
-
-	for(auto& agent : all_agents)
+	if (player.alive)
 	{
-		agent->draw(this);
-	}
+		DrawTexture(background,0 ,0, WHITE);
 
-	DrawText(TextFormat("Kills: %i", killCounter), 30, GetScreenHeight() - 70, 50, BLACK);
+		for(auto& agent : all_agents)
+		{
+			agent->draw(this);
+		}
+
+		DrawText(TextFormat("Kills: %i", killCounter), 30, GetScreenHeight() - 70, 50, BLACK);
+	}
+	else
+	{
+		int screenWidth = GetScreenWidth();
+		int screenHeight = GetScreenHeight();
+		DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
+		DrawText(TextFormat("GAME OVER"), (screenWidth / 2) - 300, screenHeight / 2, 100, WHITE);
+	}
 }
 
 void Level::damageMonstersWithPlayersSword()
