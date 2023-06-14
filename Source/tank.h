@@ -41,6 +41,7 @@ public:
 	//} state = idle;
 
 	bool alive = true;
+	bool closeToAlly = false;
 
 private:
 

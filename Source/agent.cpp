@@ -15,6 +15,11 @@ Vector2 Agent::getTargetPos()
 	return targetPos;
 }
 
+void Agent::setTargetPos(Vector2 p_targetPos)
+{
+	targetPos = p_targetPos;
+}
+
 float Agent::getMoveSpeed()
 {
 	return moveSpeed;

@@ -54,29 +54,48 @@ void Tank::update(Level* level)
 		float playerMaxHealth = level->healer.getMaxEnergy();
 		float playerHealthPercent = playerHealth / playerMaxHealth;
 
-		if (   healerHealth <= (healerMaxHealth / 4) * 3
-			|| playerHealth <= (playerMaxHealth / 4) * 3 )
+		Vector2 healerPos = level->healer.getPosition();
+		Vector2 playerPos = level->player.getPosition();
+
+		float distanceToHealer = Vector2Distance(pos, healerPos);
+		float distanceToPlayer = Vector2Distance(pos, playerPos);
+
+		if (distanceToHealer > 65.0f || distanceToPlayer > 65.0f)
 		{
-			level->tank_checkAlliesHealth.condition = true;
+			closeToAlly = false;
 		}
 		else
 		{
-			level->tank_checkAlliesHealth.condition = false;
+			closeToAlly = true;
 		}
 
-		if (healerHealthPercent < playerHealthPercent)
+		if (!closeToAlly)
 		{
-			target = Agent::Target::Healer;
-			level->tank_moveToLowestHealthAlly.condition = true;
-		}
-		else
-		{
-			target = Agent::Target::Player;
-			level->tank_moveToLowestHealthAlly.condition = false;
+			if (   healerHealth <= (healerMaxHealth / 4) * 3
+				|| playerHealth <= (playerMaxHealth / 4) * 3 )
+			{
+				level->tank_checkAlliesHealth.condition = true;
+			}
+			else
+			{
+				level->tank_checkAlliesHealth.condition = false;
+			}
+
+			if (healerHealthPercent < playerHealthPercent && level->healer.alive)
+			{
+				target = Agent::Target::Healer;
+				level->tank_moveToLowestHealthAlly.condition = true;
+			}
+			else
+			{
+				target = Agent::Target::Player;
+				level->tank_moveToLowestHealthAlly.condition = false;
+			}
 		}
 
 		Vector2 closestMonsterPos = level->getClosestMonsterPos(this);
 		float distanceToClosestMonster = Vector2Distance(pos, closestMonsterPos);
+		targetPos = closestMonsterPos;
 
 		if (distanceToClosestMonster <= 100)
 		{
@@ -103,10 +122,10 @@ void Tank::draw(Level* level)
 		Vector2 pos = getPosition();
 		//DrawTexture(tankTex, pos.x, pos.y, WHITE);
 
-		Vector2 origin = { level->tankTex.width, level->tankTex.height };
+		Vector2 origin = { (float)level->tankTex.width, (float)level->tankTex.height };
 		//DrawTextureEx(tankTex, pos, rotation, scale, WHITE);
-		Rectangle rectSrc = { 0, 0, level->tankTex.width, level->tankTex.height };
-		Rectangle rectDst = { pos.x, pos.y, level->tankTex.width * scale, level->tankTex.height * scale };
+		Rectangle rectSrc = { 0.0f, 0.0f, (float)level->tankTex.width, (float)level->tankTex.height };
+		Rectangle rectDst = { pos.x, pos.y, (float)(level->tankTex.width * scale), (float)(level->tankTex.height * scale) };
 
 		DrawTexturePro(level->tankTex, rectSrc, rectDst, origin, angle, WHITE);
 
@@ -118,8 +137,8 @@ void Tank::draw(Level* level)
 		const float healthBarPosX = pos.x - origin.x - healthBarOffsetX;
 		const float healthBarOffsetY = 20;
 		const float healthBarPosY = pos.y - origin.y - healthBarOffsetY;
-		DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
-		DrawRectangle(healthBarPosX, healthBarPosY, energy / 2, healtBarHeight, RED);
+		DrawRectangle((int)(healthBarPosX - halfBorderSize), (int)(healthBarPosY - halfBorderSize), (int)((maxEnergy / 2) + borderSize), (int)(healtBarHeight + borderSize), BLACK);
+		DrawRectangle((int)healthBarPosX, (int)healthBarPosY, (int)(energy / 2), (int)healtBarHeight, RED);
 	}
 }
 

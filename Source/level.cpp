@@ -216,7 +216,7 @@ void Level::update()
 
 	if (monsterAgents.size() < maxMonsterCount)
 	{
-		for (int i = monsterAgents.size(); i < maxMonsterCount; i++)
+		for (int i = (int)monsterAgents.size(); i < maxMonsterCount; i++)
 		{
 			Monster* newMonster = spawnMonster(Monster());
 			newMonster->initialize();
@@ -347,11 +347,33 @@ void Level::moveAgentTowardsOtherAgent(Agent& agentToMove, Vector2 targetAgentPo
 	agentToMove.setPosition(pos);
 }
 
-Vector2 Level::getClosestMonsterPos(Agent *agent)
+//Vector2 Level::getClosestMonsterPos(Agent *agent)
+//{
+//	float lastDistance = 10000000;
+//	float distance = 100000;
+//	Vector2 closestMonsterPos = { lastDistance, lastDistance };
+//	for (auto& monsters : monsterAgents)
+//	{
+//		Vector2 pos = agent->getPosition();
+//		Vector2 monsterPos = monsters.getPosition();
+//		distance = Vector2Distance(pos, monsterPos);
+//		if (distance < lastDistance)
+//		{
+//			lastDistance = distance;
+//			closestMonsterPos = monsterPos;
+//		}
+//	}
+//
+//	return closestMonsterPos;
+//}
+
+Vector2 Level::getClosestMonsterPos(Agent* agent)
 {
 	float lastDistance = 10000000;
 	float distance = 100000;
 	Vector2 closestMonsterPos = { lastDistance, lastDistance };
+
+
 	for (auto& monsters : monsterAgents)
 	{
 		Vector2 pos = agent->getPosition();

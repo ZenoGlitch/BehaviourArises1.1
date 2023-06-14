@@ -22,6 +22,7 @@ public:
 	float getEnergy() override;
 	float getMaxEnergy();
 
+	void heal(float p_health);
 	void damage(float p_damage);
 
 	void shoot(Level *level);

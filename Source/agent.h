@@ -31,6 +31,7 @@ public:
 	void setPosition(Vector2 p_position);
 
 	Vector2 getTargetPos();
+	void setTargetPos(Vector2 p_targetPos);
 
 	float getMoveSpeed();
 	void setMoveSpeed(float p_moveSpeed);

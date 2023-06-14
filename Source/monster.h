@@ -6,9 +6,8 @@
 class Monster : public Agent
 {
 public:
-	//Monster() = default;
-
-	void initialize(/*Level *level*/);
+	
+	void initialize();
 
 	void sense(Level *level) override;
 	void decide() override;
@@ -26,7 +25,8 @@ public:
 	void damage(float damageAmount);
 
 	void findClosestTarget(Level *level);
-	void setTargetPos(Vector2 p_targetPos);
+
+	//void setTargetPos(Vector2 p_targetPos);
 
 	const float size = 20;
 
@@ -35,12 +35,9 @@ public:
 
 private:
 
-
-	//Texture monsterTex;
-
 	const float maxEnergy = 75;
 	float energy = maxEnergy;
 
-	float distanceToTarget;
+	float distanceToTarget = 10000000;
 
 };

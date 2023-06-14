@@ -117,15 +117,31 @@ bool BehaviourTree::DecoratorAction::run(Level* level, Agent* agent)
 {
 	if (actionId == level->tank_moveToLowestHealthAlly_id && level->healer.alive)
 	{
+		Vector2 tankPos = level->tank.getPosition();
+		Vector2 healerPos = level->healer.getPosition();
+		Vector2 playerPos = level->player.getPosition();
+		float distanceToHealer = Vector2Distance(tankPos, healerPos);
+		float distanceToPlayer = Vector2Distance(tankPos, playerPos);
 
 		if (level->tank_moveToLowestHealthAlly.condition) // healer has lowest health
 		{
 			level->moveAgentTowardsOtherAgent(level->tank, level->healer.getPosition());
+			//if ( distanceToHealer <= 65)
+			//{
+			//	level->tank_checkAlliesHealth.condition = false;
+			//	level->tank.closeToAlly = true;
+			//}
 			return true;
 		}
 		else // player has lowest health
 		{
 			level->moveAgentTowardsOtherAgent(level->tank, level->player.getPosition());
+			//if (distanceToPlayer <= 65)
+			//{
+			//	level->tank_checkAlliesHealth.condition = false;
+			//	level->tank.closeToAlly = true;
+
+			//}
 			return true;
 		}
 	}
@@ -156,15 +172,8 @@ bool BehaviourTree::Root::run(Level* level, Agent* agent)
 
 }
 
-Action::Action(std::string newName, int prob) 
-	: name(newName), probabilityOfSuccess(prob)
-{
-}
-
 Action::Action(int p_actionId)
 	:actionId(p_actionId)
-	,probabilityOfSuccess(100)
-	,name("name")
 {
 }
 
@@ -175,15 +184,19 @@ bool Action::run(Level *level, Agent* agent)
 
 	if (actionId == level->tank_moveToHealer_id && level->healer.alive)
 	{
+		Vector2 tankPos = level->tank.getPosition();
 		Vector2 healerPos = level->healer.getPosition();
 		level->moveAgentTowardsOtherAgent(level->tank, healerPos);
+		
 		return true;
 	}
 
 	if (actionId == level->tank_moveToMonster_id)
 	{
+
 		Vector2 monsterPos = level->tank.getClosestMonsterPos(level);
-		level->moveAgentTowardsOtherAgent(level->tank, monsterPos);
+		Vector2 targetPos = level->tank.getTargetPos();
+		level->moveAgentTowardsOtherAgent(level->tank, targetPos);
 		return true;
 	}
 
@@ -218,9 +231,27 @@ bool Action::run(Level *level, Agent* agent)
 		level->healer.drawHealCircle = false;
 		level->healer.projectile.active = false;
 		level->healer.projectile.positionsSet = false;
-		//Vector2 healerPos = level->healer.getPosition();
+
+		Vector2 healerPos = level->healer.getPosition();
 		Vector2 tankPos = level->tank.getPosition();
-		level->moveAgentTowardsOtherAgent(level->healer, tankPos);
+		
+		if (level->tank.alive)
+		{
+			level->moveAgentTowardsOtherAgent(level->healer, tankPos);
+		}
+
+		level->healingCooldown -= GetFrameTime();
+
+		if (healerPos.x <= tankPos.x + 60.0f && healerPos.x >= tankPos.x - 60.0f
+			&& healerPos.y <= tankPos.y + 60.0f && healerPos.y >= tankPos.y - 60.0f
+			&& level->healingCooldown < 0.0f)
+		{
+			level->healer.heal(20.0f);
+			level->healer.setTargetPos(healerPos);
+			level->healer.drawHealCircle = true;
+			level->healingCooldown = 2.0f;
+		}
+
 		return true;
 	}
 
@@ -239,14 +270,14 @@ bool Action::run(Level *level, Agent* agent)
 		level->healer.projectile.active = false;
 		level->healer.projectile.positionsSet = false;
 
-		float healAmount = 25;
+		float healAmount = 25.0f;
 		level->healingCooldown -= GetFrameTime();
 		level->healer.drawHealCircle = true;
-		if (level->healer.target == Agent::Target::Tank && level->healingCooldown <= 0 && level->tank.alive)
+		if (level->healer.target == Agent::Target::Tank && level->healingCooldown <= 0.0f && level->tank.alive)
 		{
 			level->healer.drawHealCircle = true;
 			level->tank.heal(healAmount);
-			level->healingCooldown = 2;
+			level->healingCooldown = 2.0f;
 			return true;
 		}
 		//else
@@ -254,11 +285,11 @@ bool Action::run(Level *level, Agent* agent)
 		//	level->healer.drawHealCircle = false;
 		//}
 
-		if (level->healer.target == Agent::Target::Player && level->healingCooldown <= 0)
+		if (level->healer.target == Agent::Target::Player && level->healingCooldown <= 0.0f)
 		{
 			level->healer.drawHealCircle = true;
 			level->player.heal(healAmount);
-			level->healingCooldown = 2;
+			level->healingCooldown = 2.0f;
 			return true;
 		}
 		//else
@@ -451,7 +482,7 @@ bool Action::run(Level *level, Agent* agent)
 					landingPos.y = (float)GetScreenHeight();
 				}
 
-				Vector2 flightPos = Vector2Lerp(monsterPos, landingPos, 0.01);
+				Vector2 flightPos = Vector2Lerp(monsterPos, landingPos, 0.01f);
 				agent->setPosition(flightPos);
 				
 				Vector2 currentPos = agent->getPosition();
@@ -480,14 +511,14 @@ bool Action::run(Level *level, Agent* agent)
 				//printf("MONSTER RUNNING AWAY!!\n");
 				Vector2 currentTarget = monsters.getTargetPos();
 				Vector2 monsterPos = monsters.getPosition();
-				Vector2 newTarget;
+				Vector2 newTarget = {100000, 100000};
 				if (monsterPos.x < currentTarget.x)
 				{
 					newTarget.x = 0;
 				}
 				else
 				{
-					newTarget.x = GetScreenWidth();
+					newTarget.x = (float)GetScreenWidth();
 				}
 				if (monsterPos.y < currentTarget.y)
 				{
@@ -495,7 +526,7 @@ bool Action::run(Level *level, Agent* agent)
 				}
 				else
 				{
-					newTarget.y = GetScreenHeight();
+					newTarget.y = (float)GetScreenHeight();
 				}
 				monsters.setTargetPos(newTarget);
 				monsters.moveTowards(newTarget);

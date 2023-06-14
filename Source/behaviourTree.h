@@ -96,11 +96,7 @@ private:
 
 struct Action : public BehaviourTree::Node
 {
-	Action(std::string newName, int prob);
 	Action(int p_actionId);
 	int actionId = -1;
-	std::string name;
-	int probabilityOfSuccess;
-	bool run(Level* level, Agent *agent) override; // pass in agent as argument
-
+	bool run(Level* level, Agent *agent) override; 
 };

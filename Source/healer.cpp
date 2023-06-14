@@ -126,8 +126,8 @@ void Healer::draw(Level* level)
     {
         if (drawHealCircle)
         {
-            Color healGreen = Fade(GREEN, 0.2);
-            DrawCircle(targetPos.x, targetPos.y, 150, healGreen);
+            Color healGreen = Fade(GREEN, 0.2f);
+            DrawCircle((int)targetPos.x, (int)targetPos.y, 100.0f, healGreen);
         }
 
         Vector2 pos = getPosition();
@@ -175,6 +175,18 @@ float Healer::getMaxEnergy()
     return maxEnergy;
 }
 
+void Healer::heal(float p_health)
+{
+    if (energy + p_health < maxEnergy)
+    {
+        energy = energy + p_health;
+    }
+    if (energy + p_health >= maxEnergy)
+    {
+        energy = maxEnergy;
+    }
+}
+
 void Healer::damage(float p_damage)
 {
     energy = energy - p_damage;
@@ -202,7 +214,7 @@ void Healer::shoot(Level *level)
     if (projectile.positionsSet)
     {
         //float projectileMoveSpeed = 150;
-        projectile.projectilePos = Vector2Lerp(projectile.projectilePos, projectile.targetPos, 0.01);
+        projectile.projectilePos = Vector2Lerp(projectile.projectilePos, projectile.targetPos, 0.01f);
 
 
         //if (projectile.projectilePos.x < projectile.targetPos.x)

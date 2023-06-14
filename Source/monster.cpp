@@ -2,20 +2,13 @@
 
 #include "level.h"
 
-//Monster::Monster()
-//{
-//	initialize(/*level*/);
-//}
-
-void Monster::initialize(/*Level *level*/)
+void Monster::initialize()
 {
 	setType(type_monster);
 	setPosition(randSpawnPoint());
-	//monsterTex = LoadTexture("Assets/monster1.png");
 	setMoveSpeed(100.0f);
 	setMaxAttackCooldown(1.5f);
 	setAttackCooldown(maxAttackCooldown);
-	//level->pending_agents.push_back(this);
 }
 
 void Monster::sense(Level *level)
@@ -102,8 +95,12 @@ void Monster::update(Level *level)
 	if (energy <= 0 && !isDead())
 	{
 		level->killCounter = level->killCounter + 1;
-		level->maxMonsterCount = level->maxMonsterCount + 1;
 		
+		if (level->killCounter % 3 == 0)
+		{
+			level->maxMonsterCount = level->maxMonsterCount + 2;
+		}
+
 		killAgent();
 	}
 	if (energy <= maxEnergy / 4)
@@ -115,11 +112,11 @@ void Monster::update(Level *level)
 		level->monster_checkOwnHealth.setCondition(false);
 	}
 
-	if (recieveKnockback)
-	{
-		level->monster_attackedByTank.condition = true;
-		recieveKnockback = false;
-	}
+	//if (recieveKnockback)
+	//{
+	//	level->monster_attackedByTank.condition = true;
+	//	recieveKnockback = false;
+	//}
 
 
 	findClosestTarget(level);
@@ -170,8 +167,8 @@ void Monster::draw(Level *level)
 	const float healthBarPosX = pos.x - origin.x / 2;
 	const float healthBarOffsetY = 20;
 	const float healthBarPosY = pos.y - origin.y - healthBarOffsetY;
-	DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
-	DrawRectangle(healthBarPosX, healthBarPosY, energy / 2, healtBarHeight, RED);
+	DrawRectangle((int)(healthBarPosX - halfBorderSize), (int)(healthBarPosY - halfBorderSize), (int)((maxEnergy / 2) + borderSize), (int)(healtBarHeight + borderSize), BLACK);
+	DrawRectangle((int)healthBarPosX, (int)healthBarPosY, (int)(energy / 2), (int)healtBarHeight, RED);
 
 }
 
@@ -266,15 +263,15 @@ void Monster::findClosestTarget(Level *level)
 		targetPos = level->tank.getPosition();
 	}
 
-	if (target == Healer && level->tank.alive)
+	if (target == Healer && level->healer.alive)
 	{
 		targetPos = level->healer.getPosition();
 	}
 }
 
-void Monster::setTargetPos(Vector2 p_targetPos)
-{
-	targetPos = p_targetPos;
-}
+//void Monster::setTargetPos(Vector2 p_targetPos)
+//{
+//	targetPos = p_targetPos;
+//}
 
 
