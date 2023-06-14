@@ -43,6 +43,7 @@ int main(void)
     }
 
     CloseWindow();
+    level.reset();
 
     return 0;
 }

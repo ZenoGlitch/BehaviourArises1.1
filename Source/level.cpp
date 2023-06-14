@@ -180,6 +180,17 @@ Monster* Level::spawnMonster(Monster monster)
 void Level::reset()
 {
 	// TODO: Implement this yourself, clear all lists and vectors, after that spawn agents
+	monsterAgents.clear();
+	pending_agents.clear();
+	all_agents.clear();
+	id_to_agent.clear();
+
+	UnloadTexture(playerTex);
+	UnloadTexture(swordTex);
+	UnloadTexture(monsterTex);
+	UnloadTexture(tankTex);
+	UnloadTexture(healerTex);
+	UnloadTexture(projectileTex);
 
     // this is here just as an example.
     // You should also replace "SillyAgent", that is also just an example.
