@@ -172,12 +172,11 @@ bool BehaviourTree::Root::run(Level* level, Agent* agent)
 
 }
 
-Action::Action(int p_actionId)
-	:actionId(p_actionId)
+BehaviourTree::Action::Action(int p_actionId) : actionId(p_actionId)
 {
 }
 
-bool Action::run(Level *level, Agent* agent)
+bool BehaviourTree::Action::run(Level *level, Agent* agent)
 {
 
 	// TANK BT ACTIONS

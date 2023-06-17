@@ -88,15 +88,16 @@ public:
 	void setRootChild(Selector* rootChild);
 	bool run(Level* level) const { return root->run(level, nullptr); }
 
+	struct Action : public BehaviourTree::Node
+	{
+	public:
+		Action(int p_actionId);
+		int actionId = -1;
+		bool run(Level* level, Agent *agent) override; 
+	};
+
 private:
 
 	Root* root;
 
-};
-
-struct Action : public BehaviourTree::Node
-{
-	Action(int p_actionId);
-	int actionId = -1;
-	bool run(Level* level, Agent *agent) override; 
 };

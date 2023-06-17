@@ -47,11 +47,11 @@ public:
 	BehaviourTree::DecoratorConditional tank_checkOwnHealth;
 	BehaviourTree::DecoratorConditional tank_checkAlliesHealth;
 	BehaviourTree::DecoratorAction tank_moveToLowestHealthAlly = BehaviourTree::DecoratorAction(tank_moveToLowestHealthAlly_id);
-	Action tank_moveTowardsHealer = Action(tank_moveToHealer_id);
+	BehaviourTree::Action tank_moveTowardsHealer = BehaviourTree::Action(tank_moveToHealer_id);
 	BehaviourTree::DecoratorConditional tank_notInAttackRange;
 	BehaviourTree::DecoratorConditional tank_inAttackRange;
-	Action tank_moveTowardsMonster = Action(tank_moveToMonster_id);
-	Action tank_attack = Action(tank_attack_id);
+	BehaviourTree::Action tank_moveTowardsMonster = BehaviourTree::Action(tank_moveToMonster_id);
+	BehaviourTree::Action tank_attack = BehaviourTree::Action(tank_attack_id);
 
 	//Action moveTowardsPlayer = Action(tank_moveToPlayer_Id);
 
@@ -74,16 +74,16 @@ public:
 	BehaviourTree::Sequence healer_sequence[6];
 	BehaviourTree::Selector healer_selector[3];
 	BehaviourTree::DecoratorConditional healer_checkOwnHealth;
-	Action healer_runAway = Action(healer_runAway_id);
+	BehaviourTree::Action healer_runAway = BehaviourTree::Action(healer_runAway_id);
 	BehaviourTree::DecoratorConditional healer_checkAlliesHealth;
 	BehaviourTree::DecoratorConditional healer_notInHealingRange;
-	Action healer_moveToLowestHealthAlly = Action(healer_moveToLowestHealthAlly_id);
-	Action healer_healTarget = Action(healer_healTarget_id);
+	BehaviourTree::Action healer_moveToLowestHealthAlly = BehaviourTree::Action(healer_moveToLowestHealthAlly_id);
+	BehaviourTree::Action healer_healTarget = BehaviourTree::Action(healer_healTarget_id);
 	BehaviourTree::DecoratorConditional healer_inHealrange;
 	BehaviourTree::DecoratorConditional healer_notInAttackRange;
-	Action healer_moveToMonster = Action(healer_moveToMonster_id);
+	BehaviourTree::Action healer_moveToMonster = BehaviourTree::Action(healer_moveToMonster_id);
 	BehaviourTree::DecoratorConditional healer_inAttackRange;
-	Action healer_attack = Action(healer_attack_id);
+	BehaviourTree::Action healer_attack = BehaviourTree::Action(healer_attack_id);
 
 
 
@@ -105,13 +105,13 @@ public:
 	BehaviourTree::Sequence monster_sequence[4];
 	BehaviourTree::Selector monster_selector;
 	BehaviourTree::DecoratorConditional monster_attackedByTank;
-	Action monster_getKnockedBack = Action(monster_getKnockedBack_id);
+	BehaviourTree::Action monster_getKnockedBack = BehaviourTree::Action(monster_getKnockedBack_id);
 	BehaviourTree::DecoratorConditional monster_checkOwnHealth;
-	Action monster_runAway = Action(monster_runAway_id);
+	BehaviourTree::Action monster_runAway = BehaviourTree::Action(monster_runAway_id);
 	BehaviourTree::DecoratorConditional monster_notInAttackRange;
-	Action monster_moveToClosestTarget = Action(monster_moveToClosestTarget_id);
+	BehaviourTree::Action monster_moveToClosestTarget = BehaviourTree::Action(monster_moveToClosestTarget_id);
 	BehaviourTree::DecoratorConditional monster_inAttackRange;
-	Action monster_attack = Action(monster_attack_id);
+	BehaviourTree::Action monster_attack = BehaviourTree::Action(monster_attack_id);
 
 	// End of Monster BT stuff
 
