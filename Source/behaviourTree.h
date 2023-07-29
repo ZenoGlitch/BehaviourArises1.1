@@ -7,6 +7,13 @@
 
 class Level;
 
+enum NodeState
+{
+	running,
+	success,
+	failure
+};
+
 class BehaviourTree
 {
 public:
@@ -16,6 +23,7 @@ public:
 	struct Node
 	{
 		virtual bool run(Level* level, Agent *agent) = 0;
+		NodeState state;
 	};
 
 	struct CompositeNode : public Node

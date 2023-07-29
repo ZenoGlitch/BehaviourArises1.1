@@ -34,31 +34,47 @@ bool BehaviourTree::Selector::run(Level* level, Agent* agent)
 {
 	for (auto *child : getChildren())   // The generic Selector implementation
 	{
-		if (child->run(level, agent))  // If one child succeeds, the entire operation run() succeeds.  Failure only results if all children fail.
+		child->run(level, agent);
+		state = child->state;
+
+		if (state == success || state == running )  // If one child succeeds, the entire operation run() succeeds.  Failure only results if all children fail.
 		{
-			return true;
+			return state;
 
 		}
 	}
-	return false;  // All children failed so the entire run() operation fails.
+	state = failure;
+	return state;  // All children failed so the entire run() operation fails.
 }
 
 bool BehaviourTree::Sequence::run(Level* level, Agent* agent)
 {
 	for (auto *child : getChildren()) {  // The generic Sequence implementation.
-		if (!child->run(level, agent))  // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
-			return false;
+		
+		child->run(level, agent);
+		state = child->state;
+
+		if (state == failure || state == running) // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
+		{
+			return state;
+		}
 	}
-	return true;  // All children suceeded, so the entire run() operation succeeds.
+	state = success;
+	return state;  // All children suceeded, so the entire run() operation succeeds.
 }
 
 bool BehaviourTree::DecoratorConditional::run(Level* level, Agent* agent)
 {
 	if (condition)
 	{
-		return true;
+		state = success;
+		return state;
 	}
-	else return false;
+	else
+	{
+		state = failure;
+		return state;
+	}
 }
 
 void BehaviourTree::DecoratorConditional::setCondition(bool p_condition)
@@ -72,15 +88,23 @@ bool BehaviourTree::DecoratorSelector::run(Level* level, Agent* agent)
 	{
 		for (auto* child : getChildren())   // The generic Selector implementation
 		{
-			if (child->run(level, agent))  // If one child succeeds, the entire operation run() succeeds.  Failure only results if all children fail.
+			child->run(level, agent);
+			state = child->state;
+
+			if (state == success || state == running)  // If one child succeeds, the entire operation run() succeeds.  Failure only results if all children fail.
 			{
-				return true;
+				return state;
 
 			}
 		}
-		return false;  // All children failed so the entire run() operation fails.
+		state = failure;
+		return state;  // All children failed so the entire run() operation fails.
 	}
-	else return false;
+	else
+	{
+		state = failure;
+		return state;
+	}
 }
 
 void BehaviourTree::DecoratorSelector::setCondition(bool p_condition)
@@ -93,12 +117,20 @@ bool BehaviourTree::DecoratorSequence::run(Level* level, Agent* agent)
 	if (condition)
 	{
 		for (auto* child : getChildren()) {  // The generic Sequence implementation.
-			if (!child->run(level, agent))  // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
-				return false;
+
+			child->run(level, agent);
+			state = child->state;
+
+			if (state == failure || state == running) // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
+			{
+				return state;
+			}
 		}
-		return true;  // All children suceeded, so the entire run() operation succeeds.
+		state = success;
+		return state;  // All children suceeded, so the entire run() operation succeeds.
 	}
-	return false;
+	state = success;
+	return state;
 }
 
 BehaviourTree::DecoratorAction::DecoratorAction(std::string newName, int prob)
@@ -131,7 +163,8 @@ bool BehaviourTree::DecoratorAction::run(Level* level, Agent* agent)
 			//	level->tank_checkAlliesHealth.condition = false;
 			//	level->tank.closeToAlly = true;
 			//}
-			return true;
+			state = running;
+			return state;
 		}
 		else // player has lowest health
 		{
@@ -142,11 +175,13 @@ bool BehaviourTree::DecoratorAction::run(Level* level, Agent* agent)
 			//	level->tank.closeToAlly = true;
 
 			//}
-			return true;
+			state = running;
+			return state;
 		}
 	}
 
-	return false;
+	state = failure;
+	return state;
 }
 
 void BehaviourTree::DecoratorAction::setCondition(bool p_condition)
@@ -186,8 +221,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 		Vector2 tankPos = level->tank.getPosition();
 		Vector2 healerPos = level->healer.getPosition();
 		level->moveAgentTowardsOtherAgent(level->tank, healerPos);
-		
-		return true;
+		state = running;
+		return state;
 	}
 
 	if (actionId == level->tank_moveToMonster_id)
@@ -196,7 +231,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 		Vector2 monsterPos = level->tank.getClosestMonsterPos(level);
 		Vector2 targetPos = level->tank.getTargetPos();
 		level->moveAgentTowardsOtherAgent(level->tank, targetPos);
-		return true;
+		state = running;
+		return state;
 	}
 
 	if (actionId == level->tank_attack_id)
@@ -216,11 +252,11 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 					//monster.recieveKnockback = true;
 
 					level->tank.attackCooldown = 3.0f;
-
+					state = success;
 				}
 			}
 		}
-		return true;
+		return state;
 	}
 	
 
@@ -251,7 +287,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 			level->healingCooldown = 2.0f;
 		}
 
-		return true;
+		state = running;
+		return state;
 	}
 
 	if (actionId == level->healer_moveToLowestHealthAlly_id)
@@ -261,7 +298,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 		level->healer.projectile.positionsSet = false;
 		Vector2 targetPos = level->healer.getTargetPos();
 		level->moveAgentTowardsOtherAgent(level->healer, targetPos);
-		return true;
+		state = running;
+		return state;
 	}
 
 	if (actionId == level->healer_healTarget_id)
@@ -277,7 +315,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 			level->healer.drawHealCircle = true;
 			level->tank.heal(healAmount);
 			level->healingCooldown = 2.0f;
-			return true;
+			state = running;
+			return state;
 		}
 		//else
 		//{
@@ -289,7 +328,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 			level->healer.drawHealCircle = true;
 			level->player.heal(healAmount);
 			level->healingCooldown = 2.0f;
-			return true;
+			state = running;
+			return state;
 		}
 		//else
 		//{
@@ -298,7 +338,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 
 		//level->healer.drawHealCircle = false;
 
-		return true;
+		state = success;
+		return state;
 	}
 
 
@@ -324,7 +365,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 		Vector2 monsterPos = level->getClosestMonsterPos(&level->healer);
 		level->moveAgentTowardsOtherAgent(level->healer, monsterPos);
 
-		return true;
+		state = running;
+		return state;
 	}
 
 	if (actionId == level->healer_attack_id)
@@ -332,7 +374,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 		level->healer.drawHealCircle = false;
 		level->healer.shoot(level);
 		//printf("healer should be attacking\n");
-		return true;
+		state = success;
+		return state;
 	}
 
 
@@ -496,8 +539,8 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 				}
 			}
 
-
-			return true;
+			state = success;
+			return state;
 		}
 	}
 
@@ -530,7 +573,9 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 				monsters.setTargetPos(newTarget);
 				monsters.moveTowards(newTarget);
 			}
-			return true;
+
+			state = running;
+			return state;
 		}
 	}
 
@@ -545,41 +590,77 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 				Vector2 targetPos = agent->getTargetPos();
 
 				level->moveAgentTowardsOtherAgent(*agent, targetPos);
-
-				return true;
+				state = running;
+				return state;
 			}
 		}
-	}
-
-	if (agent != nullptr && agent->type == Agent::type_monster && agent->inAttackRange)
-	{
-		float monsterAttackDamage = 10;
-		if (actionId == level->monster_attack_id)
+		else if (agent->inAttackRange)
 		{
-			if (agent->attackCooldown <= 0.0f)
+			float monsterAttackDamage = 10;
+			if (actionId == level->monster_attack_id)
 			{
-				if (agent->target == agent->Healer)
+				if (agent->attackCooldown <= 0.0f)
 				{
-					level->healer.damage(monsterAttackDamage);
-					agent->attackCooldown = agent->maxAttackCooldown;
-				}
-				if (agent->target == agent->Tank)
-				{
-					level->tank.damage(monsterAttackDamage);
-					agent->attackCooldown = agent->maxAttackCooldown;
-				}
-				if (agent->target == agent->Player)
-				{
-					level->player.damage(monsterAttackDamage);
-					agent->attackCooldown = agent->maxAttackCooldown;
-				}
+					if (agent->target == agent->Healer)
+					{
+						level->healer.damage(monsterAttackDamage);
+						agent->attackCooldown = agent->maxAttackCooldown;
+					}
+					if (agent->target == agent->Tank)
+					{
+						level->tank.damage(monsterAttackDamage);
+						agent->attackCooldown = agent->maxAttackCooldown;
+					}
+					if (agent->target == agent->Player)
+					{
+						level->player.damage(monsterAttackDamage);
+						agent->attackCooldown = agent->maxAttackCooldown;
+					}
 
+				}
+				agent->attackCooldown -= GetFrameTime();
+
+				state = running;
+				return state;
 			}
-			agent->attackCooldown -= GetFrameTime();
-
-			return true;
 		}
+		state = failure;
+		return state;
 	}
 
-	return false;
+
+
+	//if (agent != nullptr && agent->type == Agent::type_monster && agent->inAttackRange)
+	//{
+	//	float monsterAttackDamage = 10;
+	//	if (actionId == level->monster_attack_id)
+	//	{
+	//		if (agent->attackCooldown <= 0.0f)
+	//		{
+	//			if (agent->target == agent->Healer)
+	//			{
+	//				level->healer.damage(monsterAttackDamage);
+	//				agent->attackCooldown = agent->maxAttackCooldown;
+	//			}
+	//			if (agent->target == agent->Tank)
+	//			{
+	//				level->tank.damage(monsterAttackDamage);
+	//				agent->attackCooldown = agent->maxAttackCooldown;
+	//			}
+	//			if (agent->target == agent->Player)
+	//			{
+	//				level->player.damage(monsterAttackDamage);
+	//				agent->attackCooldown = agent->maxAttackCooldown;
+	//			}
+
+	//		}
+	//		agent->attackCooldown -= GetFrameTime();
+
+	//		state = running;
+	//		return state;
+	//	}
+	//}
+
+	state = failure;
+	return state;
 }
