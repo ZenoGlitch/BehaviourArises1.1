@@ -23,7 +23,7 @@ public:
 	struct Node
 	{
 		virtual bool run(Level* level, Agent *agent) = 0;
-		NodeState state;
+		NodeState state = failure;
 	};
 
 	struct CompositeNode : public Node
@@ -74,13 +74,10 @@ public:
 
 	struct DecoratorAction : public BehaviourTree::Node
 	{
-		DecoratorAction(std::string newName, int prob);
 		DecoratorAction(int p_actionId);
 		bool condition = false;
 		int actionId = -1;
 		bool run(Level* level, Agent* agent) override;
-		std::string name;
-		int probabilityOfSuccess;
 		void setCondition(bool p_condition);
 	};
 
@@ -88,13 +85,9 @@ public:
 	{
 	public:
 		Node* child = nullptr;
-		//friend class BehaviourTree;
 		void setChild(Selector* newChild);
 		virtual bool run(Level* level, Agent* agent) override;
 	};
-
-	void setRootChild(Selector* rootChild);
-	bool run(Level* level) const { return root->run(level, nullptr); }
 
 	struct Action : public BehaviourTree::Node
 	{
@@ -105,7 +98,5 @@ public:
 	};
 
 private:
-
-	Root* root;
 
 };

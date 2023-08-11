@@ -11,83 +11,16 @@ void Monster::initialize()
 	setAttackCooldown(maxAttackCooldown);
 }
 
-void Monster::sense(Level *level)
+void Monster::sense(Level *level) // deprecated
 {
-	//Vector2 pos = getPosition();
-	//// what target is closest? Tank/Healer/Player?
-	//float distanceToPlayer = Vector2Distance(pos, level->player.getPosition());
-	//float distanceToTank   = Vector2Distance(pos, level->tank.getPosition()); // change this for tank pos
-	//float distanceToHealer = Vector2Distance(pos, level->healer.getPosition()); // change this for healer pos
-
-	//if (distanceToHealer < distanceToTank && distanceToHealer < distanceToPlayer)
-	//{
-	//	healerIsClosest = true;
-	//}
-	//else healerIsClosest = false;
-	//if (distanceToPlayer < distanceToTank && distanceToPlayer < distanceToHealer)
-	//{
-	//	playerIsClosest = true;
-	//}
-	//else playerIsClosest = false;
-	//if (distanceToTank < distanceToPlayer && distanceToTank < distanceToHealer)
-	//{
-	//	tankIsClosest = true;
-	//}
-	//else tankIsClosest = false;
-
 }
 
-void Monster::decide()
+void Monster::decide() // deprecated
 {
-	//if (healerIsClosest)
-	//{
-	//	target = Healer;
-	//}
-	//if (tankIsClosest)
-	//{
-	//	target = Tank;
-	//}
-	//if (playerIsClosest)
-	//{
-	//	target = Player;
-	//}
-
 }
 
-void Monster::act(Level *level)
+void Monster::act(Level *level) // deprecated
 {
-	//if (target == Player)
-	//{
-	//	targetPos = level->player.getPosition();
-	//}
-
-	//if (target == Tank)
-	//{
-	//	targetPos = level->tank.getPosition();
-	//}
-	////if (target == Tank)
-	////{
-	////	targetPos = level->tank.getPosition();
-	////}
-	////if (target == Healer)
-	////{
-	////	targetPos = level->healer.getPosition();
-	////}
-
-	//moveTowards(targetPos);
-
-	////bT.run(level);
-
-	////selector[0].run(level);
-
-	////if (selector[0].run(level)) //THIS CRASHES WITH READ ACCESS VIOLATION WTH
-	////{
-	////	printf("and returned successfully\n");
-	////}
-	////else
-	////{
-	////	printf("something failed\n");
-	////}
 }
 
 void Monster::update(Level *level)
@@ -112,15 +45,7 @@ void Monster::update(Level *level)
 		level->monster_checkOwnHealth.setCondition(false);
 	}
 
-	//if (recieveKnockback)
-	//{
-	//	level->monster_attackedByTank.condition = true;
-	//	recieveKnockback = false;
-	//}
-
-
 	findClosestTarget(level);
-	
 
 	if (distanceToTarget <= 70)
 	{
@@ -145,7 +70,6 @@ void Monster::update(Level *level)
 void Monster::draw(Level *level)
 {
 	Vector2 pos = getPosition();
-	//DrawCircle(pos.x, pos.y, size, BROWN);
 
 	//Calulate angle
 
@@ -161,14 +85,15 @@ void Monster::draw(Level *level)
 
 
 	// Draw health bar
-	const float borderSize = 4;
-	const float halfBorderSize = borderSize / 2;
-	const float healtBarHeight = 10;
-	const float healthBarPosX = pos.x - origin.x / 2;
-	const float healthBarOffsetY = 20;
-	const float healthBarPosY = pos.y - origin.y - healthBarOffsetY;
-	DrawRectangle((int)(healthBarPosX - halfBorderSize), (int)(healthBarPosY - halfBorderSize), (int)((maxEnergy / 2) + borderSize), (int)(healtBarHeight + borderSize), BLACK);
-	DrawRectangle((int)healthBarPosX, (int)healthBarPosY, (int)(energy / 2), (int)healtBarHeight, RED);
+	const int healthBarPosX = (int)(pos.x - origin.x / 2);
+	const int healthBarOffsetY = 20;
+	const int healthBarPosY = (int)(pos.y - origin.y - healthBarOffsetY);
+	const int healthBarBorderPosX = healthBarPosX - level->healthBarHalfBorderSize;
+	const int healthBarBorderPosY = healthBarPosY - level->healthBarHalfBorderSize;
+	const int healthBarBorderWidth = (int)((maxEnergy / 2) + level->healthBarBorderSize);
+
+	DrawRectangle(healthBarBorderPosX, healthBarBorderPosY, healthBarBorderWidth, level->healthBarBorderHeight, BLACK);
+	DrawRectangle(healthBarPosX, healthBarPosY, (int)(energy / 2), level->healthBarHeight, RED);
 
 }
 
@@ -222,7 +147,6 @@ void Monster::moveTowards(Vector2 target)
 void Monster::damage(float damageAmount)
 {
 	energy = energy - damageAmount;
-	//printf("monster takes damage\n");
 }
 
 void Monster::findClosestTarget(Level *level)
@@ -268,10 +192,5 @@ void Monster::findClosestTarget(Level *level)
 		targetPos = level->healer.getPosition();
 	}
 }
-
-//void Monster::setTargetPos(Vector2 p_targetPos)
-//{
-//	targetPos = p_targetPos;
-//}
 
 

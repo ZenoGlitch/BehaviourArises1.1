@@ -120,25 +120,23 @@ void Tank::draw(Level* level)
 	if (alive)
 	{
 		Vector2 pos = getPosition();
-		//DrawTexture(tankTex, pos.x, pos.y, WHITE);
-
 		Vector2 origin = { (float)level->tankTex.width, (float)level->tankTex.height };
-		//DrawTextureEx(tankTex, pos, rotation, scale, WHITE);
 		Rectangle rectSrc = { 0.0f, 0.0f, (float)level->tankTex.width, (float)level->tankTex.height };
 		Rectangle rectDst = { pos.x, pos.y, (float)(level->tankTex.width * scale), (float)(level->tankTex.height * scale) };
 
 		DrawTexturePro(level->tankTex, rectSrc, rectDst, origin, angle, WHITE);
 
 		// Draw health bar
-		const float borderSize = 4;
-		const float halfBorderSize = borderSize / 2;
-		const float healtBarHeight = 10;
-		const float healthBarOffsetX = 10;
-		const float healthBarPosX = pos.x - origin.x - healthBarOffsetX;
-		const float healthBarOffsetY = 20;
-		const float healthBarPosY = pos.y - origin.y - healthBarOffsetY;
-		DrawRectangle((int)(healthBarPosX - halfBorderSize), (int)(healthBarPosY - halfBorderSize), (int)((maxEnergy / 2) + borderSize), (int)(healtBarHeight + borderSize), BLACK);
-		DrawRectangle((int)healthBarPosX, (int)healthBarPosY, (int)(energy / 2), (int)healtBarHeight, RED);
+		const int healthBarOffsetX = 10;
+		const int healthBarPosX = (int)(pos.x - origin.x - healthBarOffsetX);
+		const int healthBarOffsetY = 20;
+		const int healthBarPosY = (int)(pos.y - origin.y - healthBarOffsetY);
+		const int healthBarBorderPosX = healthBarPosX - level->healthBarHalfBorderSize;
+		const int healthBarBorderPosY = healthBarPosY - level->healthBarHalfBorderSize;
+		const int healthBarBorderWidth = (int)((maxEnergy / 2) + level->healthBarBorderSize);
+
+		DrawRectangle(healthBarBorderPosX, healthBarBorderPosY, healthBarBorderWidth, level->healthBarBorderHeight, BLACK);
+		DrawRectangle(healthBarPosX, healthBarPosY, (int)(energy / 2), level->healthBarHeight, RED);
 	}
 }
 

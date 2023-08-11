@@ -52,9 +52,6 @@ public:
 	BehaviourTree::DecoratorConditional tank_inAttackRange;
 	BehaviourTree::Action tank_moveTowardsMonster = BehaviourTree::Action(tank_moveToMonster_id);
 	BehaviourTree::Action tank_attack = BehaviourTree::Action(tank_attack_id);
-
-	//Action moveTowardsPlayer = Action(tank_moveToPlayer_Id);
-
 	// End of Tank BT stuff
 	
 
@@ -84,11 +81,6 @@ public:
 	BehaviourTree::Action healer_moveToMonster = BehaviourTree::Action(healer_moveToMonster_id);
 	BehaviourTree::DecoratorConditional healer_inAttackRange;
 	BehaviourTree::Action healer_attack = BehaviourTree::Action(healer_attack_id);
-
-
-
-
-
 	// End of Healer BT stuff
 
 
@@ -112,20 +104,22 @@ public:
 	BehaviourTree::Action monster_moveToClosestTarget = BehaviourTree::Action(monster_moveToClosestTarget_id);
 	BehaviourTree::DecoratorConditional monster_inAttackRange;
 	BehaviourTree::Action monster_attack = BehaviourTree::Action(monster_attack_id);
-
 	// End of Monster BT stuff
 
-	//std::vector<Monster*> monsterAgents;
 	std::list<Monster> monsterAgents;
 
-
-	std::vector<Agent*> pending_agents; // Agents that will be added at the beginning of the next frame
+	std::vector<Agent*> pending_agents; 
 
 	float healingCooldown = 2;
 	int killCounter = 0;
 	int maxMonsterCount = 2;
 
 	float updateTick = 0;
+
+	const int healthBarBorderSize = 4;
+	const int healthBarHalfBorderSize = healthBarBorderSize / 2;
+	const int healthBarHeight = 10;
+	const int healthBarBorderHeight = healthBarHeight + healthBarBorderSize;
 
 private:
 	int last_id = 0;

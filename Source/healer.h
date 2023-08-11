@@ -36,7 +36,6 @@ public:
 		bool positionsSet = false;
 		Vector2 projectilePos;
 		Vector2 targetPos;
-		//Texture projectileTex;
 		float coolDown = 1;
 
 	} projectile;

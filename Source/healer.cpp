@@ -9,21 +9,19 @@ void Healer::initialize(Level* level)
     Vector2 pos = { (float)((GetScreenWidth() / 2) - 80.0f), (float)(GetScreenHeight() / 2) };
     setPosition(pos);
     setMoveSpeed(100.0f);
-    //healerTex = LoadTexture("Assets/healer.png");
-    //projectile.projectileTex = LoadTexture("Assets/projectile.png");
     
     level->pending_agents.push_back(this);
 }
 
-void Healer::sense(Level* level)
+void Healer::sense(Level* level) // deprecated
 {
 }
 
-void Healer::decide()
+void Healer::decide() // deprecated
 {
 }
 
-void Healer::act(Level* level)
+void Healer::act(Level* level) // deprecated
 {
 }
 
@@ -44,7 +42,6 @@ void Healer::update(Level* level)
         {
             level->healer_checkOwnHealth.condition = false;
         }
-
   
         float tankHealth = level->tank.getEnergy();
         float tankMaxHealth = level->tank.getMaxEnergy();
@@ -131,9 +128,7 @@ void Healer::draw(Level* level)
         }
 
         Vector2 pos = getPosition();
-        //DrawTexture(healerTex, pos.x, pos.y, WHITE);
         const float scale = 1.5f;
-        //DrawTextureEx(healerTex, pos, angle, scale, WHITE);
         Rectangle rectSrc = { 0, 0, (float)level->healerTex.width, (float)level->healerTex.height};
         Rectangle rectDst = { pos.x, pos.y, (float)(level->healerTex.width * scale), (float)(level->healerTex.height * scale) };
         Vector2 origin = { (level->healerTex.width / 2) * scale, (level->healerTex.height / 2) * scale };
@@ -141,15 +136,15 @@ void Healer::draw(Level* level)
         DrawTexturePro(level->healerTex, rectSrc, rectDst, origin, angle, WHITE);
 
         // Draw health bar
-        const int borderSize = 4;
-        const int halfBorderSize = borderSize / 2;
-        const int healtBarHeight = 10;
-        const int healthBarOffsetX = 20;
-        const int healthBarPosX = (int)pos.x - (int)origin.x + healthBarOffsetX ;
-        const int healthBarOffsetY = 20;
-        const int healthBarPosY = (int)pos.y - (int)origin.y - healthBarOffsetY;
-        DrawRectangle(healthBarPosX - halfBorderSize, healthBarPosY - halfBorderSize, (int)(maxEnergy / 2) + borderSize, healtBarHeight + borderSize, BLACK);
-        DrawRectangle(healthBarPosX, healthBarPosY, (int)(energy / 2), healtBarHeight, RED);
+        const int healthBarOffset = 20;
+        const int healthBarPosX = (int)pos.x - (int)origin.x + healthBarOffset ;
+        const int healthBarPosY = (int)pos.y - (int)origin.y - healthBarOffset;
+        const int healthBarBorderPosX = healthBarPosX - level->healthBarHalfBorderSize;
+        const int healthBarBorderPosy = healthBarPosY - level->healthBarHalfBorderSize;
+        const int healthBarBorderWidth = (int)(maxEnergy / 2) + level->healthBarBorderSize;
+
+        DrawRectangle(healthBarBorderPosX, healthBarBorderPosy, healthBarBorderWidth, level->healthBarBorderHeight, BLACK); // draw healthbar 'background/border'
+        DrawRectangle(healthBarPosX, healthBarPosY, (int)(energy / 2), level->healthBarHeight, RED); // draw health
 
         if (projectile.active)
         {
@@ -162,8 +157,6 @@ void Healer::draw(Level* level)
         }
     }
 }
-
-
 
 float Healer::getEnergy()
 {
@@ -206,44 +199,20 @@ void Healer::shoot(Level *level)
             projectile.targetPos = level->getClosestMonsterPos(this);
             projectile.positionsSet = true;
         }
-    
-        /*projectile.projectilePos = Vector2MoveTowards(projectile.projectilePos, monsterPos, attackRange);*/
-
     }
 
     if (projectile.positionsSet)
     {
-        //float projectileMoveSpeed = 150;
         projectile.projectilePos = Vector2Lerp(projectile.projectilePos, projectile.targetPos, 0.01f);
-
-
-        //if (projectile.projectilePos.x < projectile.targetPos.x)
-            //{
-            //    projectile.projectilePos.x += GetFrameTime() * projectileMoveSpeed;
-            //}
-            //if (projectile.projectilePos.x > projectile.targetPos.x)
-            //{
-            //    projectile.projectilePos.x -= GetFrameTime() * projectileMoveSpeed;
-            //}
-            //if (projectile.projectilePos.y < projectile.targetPos.y)
-            //{
-            //    projectile.projectilePos.y += GetFrameTime() * projectileMoveSpeed;
-            //}
-            //if (projectile.projectilePos.y > projectile.targetPos.y)
-            //{
-            //    projectile.projectilePos.y -= GetFrameTime() * projectileMoveSpeed;
-            //}
 
         Vector2 monsterPos = level->getClosestMonsterPos(this);
 
         if (projectile.projectilePos.x <= projectile.targetPos.x + 40 && projectile.projectilePos.x >= projectile.targetPos.x - 40
             && projectile.projectilePos.y <= projectile.targetPos.y + 40 && projectile.projectilePos.x >= projectile.targetPos.y - 40)
         {
-
             projectile.active = false;
             projectile.positionsSet = false;
             projectile.coolDown = 1;
         }
-
     }
 }
