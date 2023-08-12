@@ -56,22 +56,26 @@ void Healer::update(Level* level)
             {
                 target = Agent::Target::Player;
                 targetPos = level->player.getPosition();
+                drawHealCircle = true;
             }
             else if (tankHealthPercent < playerHealthPercent && level->tank.alive)
             {
                 target = Agent::Target::Tank;
                 targetPos = level->tank.getPosition();
+                drawHealCircle = true;
             }
             else if (!level->tank.alive)
             {
                 target = Agent::Target::Player;
                 targetPos = level->player.getPosition();
+                drawHealCircle = true;
             }
             level->healer_checkAlliesHealth.condition = true;
         }
         else
         {
             level->healer_checkAlliesHealth.condition = false;
+            drawHealCircle = false;
         }
 
         Vector2 pos = getPosition();
@@ -81,13 +85,11 @@ void Healer::update(Level* level)
         {
             level->healer_notInHealingRange.condition = false;
             level->healer_inHealrange.condition = true;
-            drawHealCircle = true;
         }
         else
         {
             level->healer_inHealrange.condition = false;
             level->healer_notInHealingRange.condition = true;
-            drawHealCircle = false;
         }
 
         Vector2 monsterPos = level->getClosestMonsterPos(this);

@@ -146,23 +146,25 @@ bool BehaviourTree::DecoratorAction::run(Level* level, Agent* agent)
 		if (level->tank_moveToLowestHealthAlly.condition) // healer has lowest health
 		{
 			level->moveAgentTowardsOtherAgent(level->tank, level->healer.getPosition());
-			//if ( distanceToHealer <= 65)
-			//{
-			//	level->tank_checkAlliesHealth.condition = false;
-			//	level->tank.closeToAlly = true;
-			//}
+			if ( distanceToHealer <= 65)
+			{
+				level->tank_checkAlliesHealth.condition = false;
+				level->tank_moveToLowestHealthAlly.condition = false;
+				level->tank.closeToAlly = true;
+			}
 			state = running;
 			return state;
 		}
 		else // player has lowest health
 		{
 			level->moveAgentTowardsOtherAgent(level->tank, level->player.getPosition());
-			//if (distanceToPlayer <= 65)
-			//{
-			//	level->tank_checkAlliesHealth.condition = false;
-			//	level->tank.closeToAlly = true;
+			if (distanceToPlayer <= 65)
+			{
+				level->tank_checkAlliesHealth.condition = false;
+				level->tank_moveToLowestHealthAlly.condition = false;
+				level->tank.closeToAlly = true;
 
-			//}
+			}
 			state = running;
 			return state;
 		}
@@ -203,7 +205,6 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 {
 
 	// TANK BT ACTIONS
-
 	if (actionId == level->tank_moveToHealer_id && level->healer.alive)
 	{
 		Vector2 tankPos = level->tank.getPosition();
@@ -292,40 +293,42 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 	{
 		level->healer.projectile.active = false;
 		level->healer.projectile.positionsSet = false;
-
-		float healAmount = 25.0f;
-		level->healingCooldown -= GetFrameTime();
 		level->healer.drawHealCircle = true;
+
+		const float healAmount = 25.0f;
+		level->healingCooldown -= GetFrameTime();
 		if (level->healer.target == Agent::Target::Tank && level->healingCooldown <= 0.0f && level->tank.alive)
 		{
-			level->healer.drawHealCircle = true;
 			level->tank.heal(healAmount);
+			level->healer.drawHealCircle = false;
 			level->healingCooldown = 2.0f;
 			state = running;
 			return state;
 		}
-		//else
-		//{
-		//	level->healer.drawHealCircle = false;
-		//}
+		else
+		{
+			level->healer.drawHealCircle = false;
+		}
 
 		if (level->healer.target == Agent::Target::Player && level->healingCooldown <= 0.0f)
 		{
-			level->healer.drawHealCircle = true;
 			level->player.heal(healAmount);
+			level->healer.drawHealCircle = false;
 			level->healingCooldown = 2.0f;
 			state = running;
 			return state;
 		}
-		//else
-		//{
-		//	level->healer.drawHealCircle = false;
-		//}
-
-		//level->healer.drawHealCircle = false;
+		else
+		{
+			level->healer.drawHealCircle = false;
+		}
 
 		state = success;
 		return state;
+	}
+	else
+	{
+		level->healer.drawHealCircle = false;
 	}
 
 	if (actionId == level->healer_moveToMonster_id)
@@ -351,7 +354,6 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 
 
 	// MONSTER BT ACTIONS
-
 	for (auto& monsters : level->monsterAgents)
 	{
 		if (level->monster_checkOwnHealth.condition)
