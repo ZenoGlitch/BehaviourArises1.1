@@ -12,10 +12,9 @@ void Level::initialize()
 	spawnMonster(Monster());
 	for (auto& monsters : monsterAgents)
 	{
-		monsters.initialize(/*this*/);
+		monsters.initialize();
 		pending_agents.push_back(&monsters);
 	}
-
 }
 
 void Level::initialize_behaviour_tree()
@@ -24,11 +23,9 @@ void Level::initialize_behaviour_tree()
 	tank_selector[0].addChild(&tank_sequence[0]); // first branch
 	tank_sequence[0].addChild(&tank_checkOwnHealth);
 	tank_sequence[0].addChild(&tank_moveTowardsHealer);
-
 	tank_selector[0].addChild(&tank_sequence[1]); // second branch
 	tank_sequence[1].addChild(&tank_checkAlliesHealth);
 	tank_sequence[1].addChild(&tank_moveToLowestHealthAlly);
-	//tank_sequence[1].addChild(&tank_selector[1]);
 	tank_selector[0].addChild(&tank_selector[1]); // third branch
 	tank_selector[1].addChild(&tank_sequence[2]);
 	tank_sequence[2].addChild(&tank_notInAttackRange);
@@ -113,12 +110,6 @@ void Level::input()
 		pos.x += GetFrameTime() * moveSpeed;
 		player.setPosition(pos);
 	}
-	//if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-	//{
-	//	player.attack();
-	//}
-
-
 }
 
 Agent* Level::get_agent(int id)
@@ -147,9 +138,6 @@ void Level::remove_dead_and_add_pending_agents()
 		}
 	}
 
-	// This must happen _after_ we remove agents from the vector 'all_agents'.
-	// @AddMoreHere
-	//silly_agents.remove_if([](SillyAgent& a){ return a.dead; });
 	monsterAgents.remove_if([](Monster& a) {return a.isDead(); });
 
 
@@ -163,7 +151,7 @@ void Level::remove_dead_and_add_pending_agents()
 		id_to_agent.insert({agent->id, agent});
 	}
 
-	pending_agents.clear(); // Important that we clear this, otherwise we'll add the same agents every frame.
+	pending_agents.clear();
 }
 
 Monster* Level::spawnMonster(Monster monster)
@@ -179,7 +167,6 @@ Monster* Level::spawnMonster(Monster monster)
 
 void Level::reset()
 {
-	// TODO: Implement this yourself, clear all lists and vectors, after that spawn agents
 	monsterAgents.clear();
 	pending_agents.clear();
 	all_agents.clear();
@@ -191,12 +178,6 @@ void Level::reset()
 	UnloadTexture(tankTex);
 	UnloadTexture(healerTex);
 	UnloadTexture(projectileTex);
-
-    // this is here just as an example.
-    // You should also replace "SillyAgent", that is also just an example.
-
-    //auto example = spawn_agent(SillyAgent());
-    //example->position = {100,100};
 }
 
 void Level::update()
@@ -226,15 +207,6 @@ void Level::update()
 				pending_agents.push_back(newMonster);
 			}
 		}
-
-
-		//for(auto& agent : all_agents)
-		//{
-		//	// TODO: This piece of code needs to be changed to make sure that sense, decide, act, happen at different frequencies.
-		//	agent->sense(this);
-		//	agent->decide();
-		//	agent->act(this);
-		//}
 
 		if (updateTick >= 2.01)
 		{
@@ -359,26 +331,6 @@ void Level::moveAgentTowardsOtherAgent(Agent& agentToMove, Vector2 targetAgentPo
 
 	agentToMove.setPosition(pos);
 }
-
-//Vector2 Level::getClosestMonsterPos(Agent *agent)
-//{
-//	float lastDistance = 10000000;
-//	float distance = 100000;
-//	Vector2 closestMonsterPos = { lastDistance, lastDistance };
-//	for (auto& monsters : monsterAgents)
-//	{
-//		Vector2 pos = agent->getPosition();
-//		Vector2 monsterPos = monsters.getPosition();
-//		distance = Vector2Distance(pos, monsterPos);
-//		if (distance < lastDistance)
-//		{
-//			lastDistance = distance;
-//			closestMonsterPos = monsterPos;
-//		}
-//	}
-//
-//	return closestMonsterPos;
-//}
 
 Vector2 Level::getClosestMonsterPos(Agent* agent)
 {

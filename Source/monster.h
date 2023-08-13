@@ -26,8 +26,6 @@ public:
 
 	void findClosestTarget(Level *level);
 
-	//void setTargetPos(Vector2 p_targetPos);
-
 	const float size = 20;
 
 	bool recieveKnockback = false;

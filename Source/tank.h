@@ -31,15 +31,6 @@ public:
 	const float moveSpeed = 100;
 	const float maxEnergy = 200;
 
-	//enum State
-	//{
-	//	runningAway,
-	//	defendingPlayer, 
-	//	defendingHealer,
-	//	attacking,
-	//	idle
-	//} state = idle;
-
 	bool alive = true;
 	bool closeToAlly = false;
 

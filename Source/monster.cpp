@@ -61,7 +61,7 @@ void Monster::update(Level *level)
 	}
 
 
-	if (level->updateTick >= 2)
+	if (level->updateTick >= 2) // Run monster behaviour tree root
 	{
 		level->monster_selector.run(level, this);
 	}
@@ -152,7 +152,7 @@ void Monster::damage(float damageAmount)
 void Monster::findClosestTarget(Level *level)
 {
 	Vector2 pos = getPosition();
-	// what target is closest? Tank/Healer/Player?
+
 	float distanceToPlayer = Vector2Distance(pos, level->player.getPosition());
 	float distanceToTank   = Vector2Distance(pos, level->tank.getPosition()); 
 	float distanceToHealer = Vector2Distance(pos, level->healer.getPosition()); 

@@ -108,7 +108,7 @@ void Tank::update(Level* level)
 			level->tank_notInAttackRange.condition = true;
 		}
 		
-		if (level->updateTick >= 2)
+		if (level->updateTick >= 2) // Run tank behaviour tree root
 		{
 			level->tank_selector[0].run(level, nullptr);
 		}

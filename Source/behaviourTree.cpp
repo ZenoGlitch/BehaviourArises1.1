@@ -184,26 +184,12 @@ void BehaviourTree::DecoratorSequence::setCondition(bool p_condition)
 	condition = p_condition;
 }
 
-void BehaviourTree::Root::setChild(Selector *newChild)
-{
-	child = newChild;
-}
-
-bool BehaviourTree::Root::run(Level* level, Agent* agent)
-{
-	if (child != nullptr)
-	return child->run(level, agent);
-	else return false;
-
-}
-
 BehaviourTree::Action::Action(int p_actionId) : actionId(p_actionId)
 {
 }
 
 bool BehaviourTree::Action::run(Level *level, Agent* agent)
 {
-
 	// TANK BT ACTIONS
 	if (actionId == level->tank_moveToHealer_id && level->healer.alive)
 	{
@@ -216,7 +202,6 @@ bool BehaviourTree::Action::run(Level *level, Agent* agent)
 
 	if (actionId == level->tank_moveToMonster_id)
 	{
-
 		Vector2 monsterPos = level->tank.getClosestMonsterPos(level);
 		Vector2 targetPos = level->tank.getTargetPos();
 		level->moveAgentTowardsOtherAgent(level->tank, targetPos);

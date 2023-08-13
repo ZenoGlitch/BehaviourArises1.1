@@ -43,7 +43,7 @@ public:
 	};
 
 	BehaviourTree::Sequence tank_sequence[4];
-	BehaviourTree::Selector tank_selector[2];
+	BehaviourTree::Selector tank_selector[2]; // tank_selector[0] == Root
 	BehaviourTree::DecoratorConditional tank_checkOwnHealth;
 	BehaviourTree::DecoratorConditional tank_checkAlliesHealth;
 	BehaviourTree::DecoratorAction tank_moveToLowestHealthAlly = BehaviourTree::DecoratorAction(tank_moveToLowestHealthAlly_id);
@@ -69,7 +69,7 @@ public:
 	};
 
 	BehaviourTree::Sequence healer_sequence[6];
-	BehaviourTree::Selector healer_selector[3];
+	BehaviourTree::Selector healer_selector[3]; // healer_selector[0] == Root
 	BehaviourTree::DecoratorConditional healer_checkOwnHealth;
 	BehaviourTree::Action healer_runAway = BehaviourTree::Action(healer_runAway_id);
 	BehaviourTree::DecoratorConditional healer_checkAlliesHealth;
@@ -95,7 +95,7 @@ public:
 	};
 
 	BehaviourTree::Sequence monster_sequence[4];
-	BehaviourTree::Selector monster_selector;
+	BehaviourTree::Selector monster_selector; // monster_selector == Root
 	BehaviourTree::DecoratorConditional monster_attackedByTank;
 	BehaviourTree::Action monster_getKnockedBack = BehaviourTree::Action(monster_getKnockedBack_id);
 	BehaviourTree::DecoratorConditional monster_checkOwnHealth;
@@ -124,10 +124,6 @@ public:
 private:
 	int last_id = 0;
 
-	//NOTE(Filippo): Using a list here is not the best idea, ideally you should store agents in some other data structure that keeps them close to each other while being pointer-stable.
-	//std::list<SillyAgent> silly_agents;
-	// @AddMoreHere
-
 	std::unordered_map<int, Agent*> id_to_agent;
 	std::vector<Agent*> all_agents;
 
@@ -143,11 +139,7 @@ public:
 
 	Agent* get_agent(int id);
 
-	//Agent* spawn_agent(SillyAgent agent);
-
-
 	Monster* spawnMonster(Monster monster);
-	// @AddMoreHere
 
 	void initialize();
 	void initialize_behaviour_tree();
@@ -167,5 +159,4 @@ public:
 
 private:
 	void remove_dead_and_add_pending_agents();
-	// Remember, if you add more lists (see @AddMoreHere), edit this function so that dead agents are removed correctly without leaking memory
 };

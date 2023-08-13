@@ -112,7 +112,7 @@ void Healer::update(Level* level)
             projectile.projectilePos = getPosition();
         }
 
-        if (level->updateTick >= 2)
+        if (level->updateTick >= 2) // Run healer behaviour tree root
         {
             level->healer_selector[0].run(level, nullptr);
         }

@@ -28,8 +28,6 @@ public:
 
 	struct CompositeNode : public Node
 	{
-	private:
-
 	public:
 		std::vector<Node*> children;
 
@@ -79,14 +77,6 @@ public:
 		int actionId = -1;
 		bool run(Level* level, Agent* agent) override;
 		void setCondition(bool p_condition);
-	};
-
-	struct Root : public Node
-	{
-	public:
-		Node* child = nullptr;
-		void setChild(Selector* newChild);
-		virtual bool run(Level* level, Agent* agent) override;
 	};
 
 	struct Action : public BehaviourTree::Node
